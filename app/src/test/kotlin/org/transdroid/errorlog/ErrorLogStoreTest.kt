@@ -90,13 +90,32 @@ class ErrorLogStoreTest {
     @Test
     fun anUnreadableFileStartsEmptyWithoutThrowing() {
         file.writeText("one" + "\n\n" + "two")
-        val madeUnreadable = file.setReadable(false)
+        file.setReadable(false)
 
-        if (madeUnreadable) {
+        // setReadable(false) returning true does NOT mean the read actually fails: as root, and
+        // under some Windows ACL setups, the bit flips while the file stays readable. Probe the
+        // real outcome rather than trusting the return value, otherwise this asserts the opposite
+        // of what the platform does.
+        if (runCatching { file.readText() }.isFailure) {
             val store = ErrorLogStore(file, maxEntries = 5)
             assertTrue(store.entries().isEmpty())
         }
-        // If the platform/user can't actually deny read access (e.g. running as root), there's
-        // nothing to assert here - the persistence test above already covers the normal read path.
+        // Environments that cannot deny read access at all (root) fall through to the
+        // unconditional case below, which covers the same store code path everywhere.
+    }
+
+    @Test
+    fun aPathThatCannotBeReadStartsEmptyWithoutThrowing() {
+        // Anything that exists but cannot be read as text drives the store's corrupt-log path.
+        // A directory is the one such path every JVM - root included - agrees on, so this
+        // asserts unconditionally instead of depending on permission bits.
+        assertTrue("could not create the not-a-file fixture", file.mkdirs())
+
+        val store = ErrorLogStore(file, maxEntries = 5)
+
+        assertTrue(store.entries().isEmpty())
+        // Writing to an unusable path must stay silent too: logging may never take the app down.
+        store.append("one")
+        assertEquals(listOf("one"), store.entries())
     }
 }

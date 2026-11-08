@@ -1,0 +1,23 @@
+<resources>
+    <string name="path_choose">Download location</string>
+    <string name="path_loading">Reading server directories…</string>
+    <string name="path_refresh">Refresh</string>
+    <string name="path_server_default">Use server default</string>
+    <string name="path_unavailable">Default unavailable (unreachable or unsupported). Keep server settings, choose a known directory, or enter a path.</string>
+    <string name="path_default_unknown">Default unknown · let server decide</string>
+    <string name="path_keep_management">Keep server automatic management and category path rules</string>
+    <string name="path_invalid">Enter an absolute directory without newlines or control characters</string>
+    <string name="path_explicit_note">This new torrent will use this directory with manual management.</string>
+    <string name="path_candidates">Known directories / recent / local names</string>
+    <string name="path_candidates_note">Known paths only, including available category paths. This is not a directory browser or an existence check.</string>
+    <string name="path_candidates_unavailable">Category paths unavailable. Torrent paths, recent directories, local names and manual entry remain available.</string>
+    <string name="path_alias_title">Local directory name</string>
+    <string name="path_alias_name">Name, e.g. Movies (leave empty to remove)</string>
+    <string name="path_alias_local">Local display for this server only. Does not change qB tags or move files.</string>
+    <string name="path_alias_edit">Name this directory</string>
+    <string name="path_alias_duplicate">This name already belongs to another directory</string>
+    <string name="path_alias_long">Use at most 40 characters without control characters</string>
+    <string name="path_alias_storage">Could not save. Please retry.</string>
+    <string name="path_full_title">Full save path</string>
+    <string name="path_unknown">Save path unknown</string>
+</resources>

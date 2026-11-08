@@ -41,6 +41,55 @@ class TorrentFiltersTest {
     )
 
     @Test
+    fun `status counts use all loaded torrents and retain existing overlapping categories`() {
+        val torrents = listOf(
+            torrent("download").copy(status = TorrentStatus.DOWNLOADING, progress = 0.2f),
+            torrent("queued").copy(status = TorrentStatus.QUEUED, progress = 0f),
+            torrent("checking").copy(status = TorrentStatus.CHECKING, progress = 0.5f),
+            torrent("seed"),
+            torrent("paused").copy(status = TorrentStatus.PAUSED),
+            torrent("error").copy(status = TorrentStatus.ERROR, progress = 0f),
+        )
+        val expectedCounts = listOf(6, 3, 1, 2, 1, 1)
+        val expectedIds = listOf(
+            setOf("download", "queued", "checking", "seed", "paused", "error"),
+            setOf("download", "queued", "checking"), setOf("seed"),
+            setOf("seed", "paused"), setOf("paused"), setOf("error"),
+        )
+        TorrentFilter.entries.forEachIndexed { index, selected ->
+            val ui = TorrentsUiState(torrents = torrents, filter = selected)
+            assertEquals(expectedCounts, TorrentFilter.entries.map(ui::countFor))
+            assertEquals(expectedIds[index], ui.visibleTorrents.map { it.id }.toSet())
+        }
+    }
+
+    @Test
+    fun `search labels trackers and sorting filter rows without shrinking status counts`() {
+        val ui = TorrentsUiState(
+            torrents = listOf(torrent("zeta", listOf("tv"), listOf("t1")), torrent("alpha", listOf("tv"), listOf("t1")), torrent("other")),
+            filter = TorrentFilter.SEEDING, nameQuery = "A", labelFilters = setOf("tv"),
+            trackerFilters = setOf("t1"), sort = TorrentSort.NAME, sortDescending = false,
+        )
+        assertEquals(listOf("alpha", "zeta"), ui.visibleTorrents.map { it.id })
+        assertEquals(3, ui.countFor(TorrentFilter.ALL))
+        assertEquals(3, ui.countFor(TorrentFilter.SEEDING))
+        assertEquals(listOf("zeta", "alpha"), ui.copy(sortDescending = true).visibleTorrents.map { it.id })
+        assertTrue(ui.copy(nameQuery = "missing").visibleTorrents.isEmpty())
+        assertEquals(3, ui.copy(nameQuery = "missing").countFor(TorrentFilter.SEEDING))
+    }
+
+    @Test
+    fun `empty and refreshed task sets recompute every status count`() {
+        val loaded = TorrentsUiState(torrents = listOf(torrent("old")))
+        val empty = loaded.copy(torrents = emptyList(), hasLoaded = false)
+        assertTrue(TorrentFilter.entries.all { empty.countFor(it) == 0 })
+        val refreshed = empty.copy(torrents = listOf(torrent("new").copy(status = TorrentStatus.DOWNLOADING, progress = 0f)))
+        assertEquals(1, refreshed.countFor(TorrentFilter.ALL))
+        assertEquals(1, refreshed.countFor(TorrentFilter.DOWNLOADING))
+        assertEquals(0, refreshed.countFor(TorrentFilter.SEEDING))
+    }
+
+    @Test
     fun `stored filter names fall back to all`() {
         assertEquals(TorrentFilter.COMPLETED, TorrentFilter.fromName("COMPLETED"))
         assertEquals(TorrentFilter.ALL, TorrentFilter.fromName("RENAMED"))

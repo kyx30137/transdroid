@@ -37,10 +37,12 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
@@ -50,7 +52,13 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import org.transdroid.ui.components.TorrentPathChip
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.ArrowDownward
 import androidx.compose.material.icons.rounded.ArrowUpward
@@ -86,6 +94,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconToggleButton
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -118,6 +127,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -271,43 +282,15 @@ fun TorrentsScreen(
                         onToggleAltSpeed = { viewModel.toggleAltSpeed() },
                     )
                 } else {
-                    TopAppBar(
-                        navigationIcon = {
-                            IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                                Icon(Icons.Rounded.Menu, contentDescription = stringResource(R.string.drawer_open))
-                            }
-                        },
-                        title = {
-                            Column(
-                                modifier = Modifier.clickable(
-                                    interactionSource = remember { MutableInteractionSource() },
-                                    indication = null,
-                                    onClick = scrollToTop,
-                                ),
-                            ) {
-                                Text(stringResource(R.string.torrents_title))
-                                ui.activeProfile?.let {
-                                    Spacer(Modifier.height(7.dp))
-                                    ServerChip(
-                                        activeProfile = it,
-                                        allProfiles = ui.allProfiles,
-                                        onSwitchProfile = { id -> viewModel.switchProfile(id) },
-                                    )
-                                }
-                            }
-                        },
-                        actions = {
-                            if (searchAvailable) {
-                                IconButton(onClick = onOpenSearch) {
-                                    Icon(Icons.Rounded.Search, contentDescription = stringResource(R.string.search_title))
-                                }
-                            }
-                            if (rssAvailable) {
-                                IconButton(onClick = onOpenRss) {
-                                    Icon(Icons.Rounded.RssFeed, contentDescription = stringResource(R.string.rss_title))
-                                }
-                            }
-                        },
+                    PhoneTopBar(
+                        ui = ui,
+                        searchAvailable = searchAvailable,
+                        rssAvailable = rssAvailable,
+                        onOpenDrawer = { scope.launch { drawerState.open() } },
+                        onOpenSearch = onOpenSearch,
+                        onOpenRss = onOpenRss,
+                        onTitleClick = scrollToTop,
+                        onSwitchProfile = { id -> viewModel.switchProfile(id) },
                     )
                 }
             },
@@ -328,9 +311,17 @@ fun TorrentsScreen(
                             Box(Modifier.width(392.dp)) {
                                 TorrentListContent(
                                     ui = ui,
-                                    viewModel = viewModel,
                                     onOpenDetails = onOpenDetails,
                                     onAddTorrent = onAddTorrent,
+                                    onRefresh = { viewModel.refresh() },
+                                    onSetFilter = { viewModel.setFilter(it) },
+                                    onClearFilters = { viewModel.clearFilters() },
+                                    onSetSort = { viewModel.setSort(it) },
+                                    onToggleAltSpeed = { viewModel.toggleAltSpeed() },
+                                    onStartSelection = { viewModel.startSelection(it) },
+                                    onToggleSelected = { viewModel.toggleSelected(it) },
+                                    onToggleStartPause = { viewModel.toggleStartPause(it) },
+                                    onDismissSelectionHint = { viewModel.dismissSelectionHint() },
                                     searchAvailable = searchAvailable,
                                     rssAvailable = rssAvailable,
                                     onOpenSearch = onOpenSearch,
@@ -363,9 +354,17 @@ fun TorrentsScreen(
                     }
                     else -> TorrentListContent(
                         ui = ui,
-                        viewModel = viewModel,
                         onOpenDetails = onOpenDetails,
                         onAddTorrent = onAddTorrent,
+                        onRefresh = { viewModel.refresh() },
+                        onSetFilter = { viewModel.setFilter(it) },
+                        onClearFilters = { viewModel.clearFilters() },
+                        onSetSort = { viewModel.setSort(it) },
+                        onToggleAltSpeed = { viewModel.toggleAltSpeed() },
+                        onStartSelection = { viewModel.startSelection(it) },
+                        onToggleSelected = { viewModel.toggleSelected(it) },
+                        onToggleStartPause = { viewModel.toggleStartPause(it) },
+                        onDismissSelectionHint = { viewModel.dismissSelectionHint() },
                         searchAvailable = searchAvailable,
                         rssAvailable = rssAvailable,
                         onOpenSearch = onOpenSearch,
@@ -379,6 +378,62 @@ fun TorrentsScreen(
             }
         }
     }
+}
+
+/**
+ * The phone's action bar: title plus the active-server chip, with the search/RSS entry points.
+ * Split out of [TorrentsScreen] so it can be rendered (and screenshotted) without a view model.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun PhoneTopBar(
+    ui: TorrentsUiState,
+    searchAvailable: Boolean,
+    rssAvailable: Boolean,
+    onOpenDrawer: () -> Unit,
+    onOpenSearch: () -> Unit,
+    onOpenRss: () -> Unit,
+    onTitleClick: () -> Unit,
+    onSwitchProfile: (String) -> Unit,
+) {
+    TopAppBar(
+        navigationIcon = {
+            IconButton(onClick = onOpenDrawer) {
+                Icon(Icons.Rounded.Menu, contentDescription = stringResource(R.string.drawer_open))
+            }
+        },
+        title = {
+            Column(
+                modifier = Modifier.clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                    onClick = onTitleClick,
+                ),
+            ) {
+                Text(stringResource(R.string.torrents_title), style = MaterialTheme.typography.headlineSmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                ui.activeProfile?.let {
+                    Spacer(Modifier.height(7.dp))
+                    ServerChip(
+                        activeProfile = it,
+                        allProfiles = ui.allProfiles,
+                        onSwitchProfile = onSwitchProfile,
+                    )
+                }
+            }
+        },
+        actions = {
+            if (searchAvailable) {
+                IconButton(onClick = onOpenSearch) {
+                    Icon(Icons.Rounded.Search, contentDescription = stringResource(R.string.search_title))
+                }
+            }
+            if (rssAvailable) {
+                IconButton(onClick = onOpenRss) {
+                    Icon(Icons.Rounded.RssFeed, contentDescription = stringResource(R.string.rss_title))
+                }
+            }
+        },
+    )
 }
 
 @Composable
@@ -482,7 +537,7 @@ private fun AltSpeedButton(enabled: Boolean, onClick: () -> Unit) {
  * the app bar.
  */
 @Composable
-private fun ServerChip(activeProfile: ServerProfile, allProfiles: List<ServerProfile>, onSwitchProfile: (String) -> Unit) {
+internal fun ServerChip(activeProfile: ServerProfile, allProfiles: List<ServerProfile>, onSwitchProfile: (String) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     val canSwitch = allProfiles.size > 1
     Box {
@@ -558,11 +613,19 @@ private fun TabletStat(icon: ImageVector, value: String, caption: String) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun TorrentListContent(
+internal fun TorrentListContent(
     ui: TorrentsUiState,
-    viewModel: TorrentsViewModel,
     onOpenDetails: (String) -> Unit,
     onAddTorrent: () -> Unit,
+    onRefresh: () -> Unit,
+    onSetFilter: (TorrentFilter) -> Unit,
+    onClearFilters: () -> Unit,
+    onSetSort: (TorrentSort) -> Unit,
+    onToggleAltSpeed: () -> Unit,
+    onStartSelection: (String) -> Unit,
+    onToggleSelected: (String) -> Unit,
+    onToggleStartPause: (Torrent) -> Unit,
+    onDismissSelectionHint: () -> Unit,
     searchAvailable: Boolean = false,
     rssAvailable: Boolean = false,
     onOpenSearch: () -> Unit = {},
@@ -570,27 +633,29 @@ private fun TorrentListContent(
     listState: LazyListState = rememberLazyListState(),
     scrollToTop: () -> Unit = {},
     showToolbar: Boolean = true,
-    showFilterChips: Boolean = false,
+    showFilterChips: Boolean = true,
     /** The navigation bar height the list draws under, which the FAB and toolbar stay above. */
     bottomInset: Dp = 0.dp,
     /** Shown in the phone's action toolbar while selecting. */
     selectionActions: SelectionActions? = null,
 ) {
+    val density = LocalDensity.current
+    var measuredOverlayHeight by remember { mutableStateOf(0.dp) }
     Box(Modifier.fillMaxSize()) {
         Column(Modifier.fillMaxSize()) {
             ui.error?.let { error ->
-                ErrorBanner(message = error.message(), onRetry = { viewModel.refresh() })
+                ErrorBanner(message = error.message(), onRetry = onRefresh)
             }
             if (showFilterChips) {
                 FilterChipsRow(
                     ui = ui,
-                    onSetFilter = { viewModel.setFilter(it) },
+                    onSetFilter = onSetFilter,
                     modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
                 )
             }
             PullToRefreshBox(
                 isRefreshing = ui.refreshing,
-                onRefresh = { viewModel.refresh() },
+                onRefresh = onRefresh,
                 modifier = Modifier.fillMaxSize(),
             ) {
                 if (ui.hasLoaded && ui.torrents.isEmpty()) {
@@ -626,7 +691,7 @@ private fun TorrentListContent(
                         message = stringResource(R.string.torrents_no_filter_message),
                         modifier = Modifier.fillMaxSize().wrapContentSize(),
                         actions = {
-                            FilledTonalButton(onClick = { viewModel.clearFilters() }) {
+                            FilledTonalButton(onClick = onClearFilters) {
                                 Icon(Icons.Rounded.FilterAlt, contentDescription = null, modifier = Modifier.size(18.dp))
                                 Spacer(Modifier.width(8.dp))
                                 Text(stringResource(R.string.torrents_show_all))
@@ -640,30 +705,30 @@ private fun TorrentListContent(
                         (if (showToolbar) ToolbarHeight else 0.dp)
                     LazyColumn(
                         state = listState,
-                        contentPadding = PaddingValues(start = 6.dp, end = 6.dp, top = 8.dp, bottom = overlayHeight + 8.dp),
+                        contentPadding = PaddingValues(top = 4.dp, bottom = maxOf(overlayHeight, measuredOverlayHeight) + 8.dp),
                         modifier = Modifier.fillMaxSize(),
                     ) {
                         if (ui.showSelectionHint && !ui.selecting && ui.visibleTorrents.isNotEmpty()) {
-                            item(key = "selection-hint") { SelectionHint(onDismiss = { viewModel.dismissSelectionHint() }) }
+                            item(key = "selection-hint") { SelectionHint(onDismiss = onDismissSelectionHint) }
                         }
                         itemsIndexed(ui.visibleTorrents, key = { _, torrent -> torrent.id }) { index, torrent ->
                             // Between rows only, starting under the text column
                             if (index > 0) {
-                                HorizontalDivider(
-                                    modifier = Modifier.padding(start = 52.dp),
-                                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.55f),
-                                )
+                                // Full-bleed rule, like the design's .task border-bottom: the
+                                // line spans the whole row, only the content is inset.
+                                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                             }
                             TorrentRow(
                                 torrent = torrent,
+                                pathAliases = ui.pathAliases,
                                 selected = !ui.selecting && torrent.id == ui.selectedTorrentId,
                                 selecting = ui.selecting,
                                 checked = torrent.id in ui.selection,
                                 onClick = {
-                                    if (ui.selecting) viewModel.toggleSelected(torrent.id) else onOpenDetails(torrent.id)
+                                    if (ui.selecting) onToggleSelected(torrent.id) else onOpenDetails(torrent.id)
                                 },
-                                onLongClick = { viewModel.startSelection(torrent.id) },
-                                onToggleStartPause = { viewModel.toggleStartPause(torrent) },
+                                onLongClick = { onStartSelection(torrent.id) },
+                                onToggleStartPause = { onToggleStartPause(torrent) },
                             )
                         }
                     }
@@ -674,6 +739,7 @@ private fun TorrentListContent(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
+                .onSizeChanged { measuredOverlayHeight = with(density) { it.height.toDp() } }
                 .padding(start = 12.dp, end = 12.dp, top = 16.dp, bottom = bottomInset + OverlayBottomPadding),
             horizontalAlignment = Alignment.End,
         ) {
@@ -691,11 +757,11 @@ private fun TorrentListContent(
                     sharingCount = ui.sharingCount,
                     sort = ui.sort,
                     sortDescending = ui.sortDescending,
-                    onSortSelect = { viewModel.setSort(it); scrollToTop() },
-                    onRefresh = { viewModel.refresh() },
+                    onSortSelect = { onSetSort(it); scrollToTop() },
+                    onRefresh = onRefresh,
                     altSpeedSupported = ui.altSpeedSupported,
                     altSpeedEnabled = ui.altSpeedEnabled,
-                    onToggleAltSpeed = { viewModel.toggleAltSpeed() },
+                    onToggleAltSpeed = onToggleAltSpeed,
                 )
             }
         }
@@ -703,25 +769,69 @@ private fun TorrentListContent(
 }
 
 @Composable
-private fun FilterChipsRow(ui: TorrentsUiState, onSetFilter: (TorrentFilter) -> Unit, modifier: Modifier = Modifier) {
-    Row(
-        modifier
-            .fillMaxWidth()
-            .horizontalScroll(rememberScrollState()),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        TorrentFilter.entries.forEach { filter ->
-            FilterChip(
-                selected = ui.filter == filter,
-                onClick = { onSetFilter(filter) },
-                label = { Text(filter.label()) },
+internal fun FilterChipsRow(ui: TorrentsUiState, onSetFilter: (TorrentFilter) -> Unit, modifier: Modifier = Modifier) {
+    val scroll = rememberScrollState()
+    val colors = MaterialTheme.colorScheme
+    // The dark palette's onPrimary is white, which has low contrast on its bright blue.
+    // Reuse the better contrasting theme role without changing colours elsewhere in the app.
+    val selectedContent = listOf(colors.onPrimary, colors.surface).maxBy { candidate ->
+        val primary = colors.primary.luminance()
+        val content = candidate.luminance()
+        (maxOf(primary, content) + 0.05f) / (minOf(primary, content) + 0.05f)
+    }
+    Box(modifier.fillMaxWidth()) {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                // Keep decorative hints outside the scroll viewport: no text is painted under them.
+                .padding(horizontal = 20.dp)
+                .testTag("torrent-status-filters")
+                .horizontalScroll(scroll),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            TorrentFilter.entries.forEach { filter ->
+                FilterChip(
+                    selected = ui.filter == filter,
+                    onClick = { onSetFilter(filter) },
+                    shape = RoundedCornerShape(50),
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = colors.primary,
+                        selectedLabelColor = selectedContent,
+                        selectedLeadingIconColor = selectedContent,
+                    ),
+                    label = {
+                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Text(filter.label(), maxLines = 1)
+                            Text(ui.countFor(filter).toString(), fontWeight = FontWeight.SemiBold, maxLines = 1)
+                        }
+                    },
+                    leadingIcon = if (ui.filter == filter) {
+                        { Icon(Icons.Rounded.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                    } else null,
+                )
+            }
+        }
+        // The scrollable row already exposes accessibility scroll actions. These are visual hints,
+        // not tiny extra buttons or duplicated TalkBack announcements; RTL mirrors both arrows.
+        if (scroll.canScrollBackward) {
+            Icon(
+                Icons.AutoMirrored.Rounded.KeyboardArrowLeft, contentDescription = null,
+                tint = colors.onSurfaceVariant,
+                modifier = Modifier.align(Alignment.CenterStart).size(18.dp).testTag("status-scroll-previous"),
+            )
+        }
+        if (scroll.canScrollForward) {
+            Icon(
+                Icons.AutoMirrored.Rounded.KeyboardArrowRight, contentDescription = null,
+                tint = colors.onSurfaceVariant,
+                modifier = Modifier.align(Alignment.CenterEnd).size(18.dp).testTag("status-scroll-next"),
             )
         }
     }
 }
 
 @Composable
-private fun TorrentsToolbar(
+internal fun TorrentsToolbar(
     downloadRate: Long,
     activeCount: Int,
     uploadRate: Long,
@@ -738,11 +848,12 @@ private fun TorrentsToolbar(
         shape = MaterialTheme.shapes.extraLarge,
         color = MaterialTheme.colorScheme.surfaceContainer,
         shadowElevation = 3.dp,
-        modifier = Modifier.fillMaxWidth().height(ToolbarHeight),
+        modifier = Modifier.fillMaxWidth().heightIn(min = ToolbarHeight),
     ) {
-        Row(
-            Modifier.fillMaxSize().padding(start = 16.dp, end = 6.dp),
-            verticalAlignment = Alignment.CenterVertically,
+        FlowRow(
+            Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 6.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             ToolbarStat(
                 icon = Icons.Rounded.ArrowDownward,
@@ -804,13 +915,13 @@ internal fun Modifier.paddingExceptBottom(padding: PaddingValues): Modifier {
 
 // Sizes of the FAB and toolbar floating over the bottom of the torrent list, which the list's
 // bottom padding is derived from
-private val FabSize = 66.dp
-private val ToolbarHeight = 62.dp
-private val FabToolbarGap = 10.dp
-private val OverlayBottomPadding = 16.dp
+internal val FabSize = 66.dp
+internal val ToolbarHeight = 62.dp
+internal val FabToolbarGap = 10.dp
+internal val OverlayBottomPadding = 16.dp
 
 @Composable
-private fun AddTorrentFab(onClick: () -> Unit) {
+internal fun AddTorrentFab(onClick: () -> Unit) {
     val interactionSource = remember { MutableInteractionSource() }
     val pressed by interactionSource.collectIsPressedAsState()
     val corner by animateDpAsState(if (pressed) 30.dp else 22.dp, label = "fab-corner")
@@ -898,9 +1009,10 @@ internal val TorrentStatus.leadingIcon: ImageVector
     }
 
 @Composable
-private fun TorrentRow(
+internal fun TorrentRow(
     torrent: Torrent,
     selected: Boolean,
+    pathAliases: Map<String, String> = emptyMap(),
     onClick: () -> Unit,
     selecting: Boolean = false,
     checked: Boolean = false,
@@ -914,8 +1026,10 @@ private fun TorrentRow(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(MaterialTheme.shapes.medium)
-            // Opaque either way, so the swipe actions behind the row don't show through it
+            // Divider list, not a card stack: square, edge-to-edge rows at the design's 82dp
+            // minimum row height. Opaque either way, so the swipe actions behind the row don't
+            // show through it.
+            .heightIn(min = 82.dp)
             .background(
                 when {
                     checked -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f)
@@ -960,9 +1074,9 @@ private fun TorrentRow(
                 Row {
                     Text(
                         torrent.name,
-                        style = MaterialTheme.typography.titleSmall,
+                        style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
-                        maxLines = 1,
+                        maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                         // fill (the default) so the name always claims the row's full
                         // remaining width like the mockup's `.name{flex:1}` - otherwise a
@@ -973,10 +1087,10 @@ private fun TorrentRow(
                     Spacer(Modifier.width(10.dp))
                     Text(
                         rowTag(torrent),
-                        style = MaterialTheme.typography.labelSmall,
+                        style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1,
-                        modifier = Modifier.alignByBaseline(),
+                        maxLines = 2,
+                        modifier = Modifier.widthIn(max = 110.dp).alignByBaseline(),
                     )
                 }
                 // A little extra room above, as the label pill is taller than the text beside it
@@ -999,16 +1113,17 @@ private fun TorrentRow(
                     active = torrent.status == TorrentStatus.DOWNLOADING,
                     color = torrent.status.accentColor,
                     trackColor = torrent.status.trackColor,
-                    modifier = Modifier.fillMaxWidth().padding(top = 10.dp, bottom = 9.dp),
+                    modifier = Modifier.fillMaxWidth().padding(top = 6.dp, bottom = 6.dp),
                 )
-                Row(
+                FlowRow(
                     Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     RowMetaLeft(torrent)
                     RowMetaRight(torrent)
                 }
+                TorrentPathChip(torrent.downloadDir, pathAliases)
             }
         }
         // Colour-coded accent line centred under the leading icon (not a full-height gutter
@@ -1066,14 +1181,14 @@ private fun RowMetaLeft(torrent: Torrent) {
     }
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
         Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.outline, modifier = Modifier.size(14.dp))
-        Text(text, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(text, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 
 @Composable
 private fun RowMetaRight(torrent: Torrent) {
     when (torrent.status) {
-        TorrentStatus.DOWNLOADING -> Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        TorrentStatus.DOWNLOADING -> FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             SpeedChip(Icons.Rounded.South, formatSpeed(torrent.downloadRate))
             SpeedChip(Icons.Rounded.North, formatSpeed(torrent.uploadRate))
         }
@@ -1086,7 +1201,7 @@ private fun RowMetaRight(torrent: Torrent) {
 private fun SpeedChip(icon: ImageVector, text: String) {
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
         Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.outline, modifier = Modifier.size(13.dp))
-        Text(text, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(text, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 

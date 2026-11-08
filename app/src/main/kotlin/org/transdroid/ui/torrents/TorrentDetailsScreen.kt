@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -279,7 +280,7 @@ fun TorrentDetailsContent(
                 }
             },
             confirmButton = {
-                TextButton(onClick = {
+                TextButton(modifier = Modifier.heightIn(min = 48.dp), onClick = {
                     showRemoveDialog = false
                     viewModel.remove(torrent, alsoDeleteData)
                     onRemoved?.invoke()
@@ -288,7 +289,7 @@ fun TorrentDetailsContent(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showRemoveDialog = false }) {
+                TextButton(modifier = Modifier.heightIn(min = 48.dp), onClick = { showRemoveDialog = false }) {
                     Text(stringResource(R.string.details_cancel))
                 }
             },
@@ -375,13 +376,13 @@ private fun DetailsSummary(
     Column {
         DetailsHeader(torrent)
 
-        Spacer(Modifier.height(18.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        Spacer(Modifier.height(16.dp))
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             val showStart = torrent.status.canStart
             Button(
                 onClick = { viewModel.toggleStartPause(torrent) },
                 shape = MaterialTheme.shapes.extraLarge,
-                modifier = Modifier.weight(1f).height(48.dp),
+                modifier = Modifier.heightIn(min = 48.dp),
             ) {
                 Icon(if (showStart) Icons.Rounded.PlayArrow else Icons.Rounded.Pause, contentDescription = null)
                 Spacer(Modifier.width(8.dp))
@@ -390,7 +391,7 @@ private fun DetailsSummary(
             OutlinedButton(
                 onClick = onRemove,
                 shape = MaterialTheme.shapes.extraLarge,
-                modifier = Modifier.height(48.dp),
+                modifier = Modifier.heightIn(min = 48.dp),
             ) {
                 Icon(Icons.Rounded.Delete, contentDescription = null)
                 Spacer(Modifier.width(8.dp))
@@ -482,10 +483,10 @@ private fun DetailsHeader(torrent: Torrent) {
                 modifier = Modifier.size(25.dp),
             )
         }
-        Column {
+        Column(Modifier.weight(1f)) {
             Text(torrent.name, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
             Spacer(Modifier.height(8.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 DetailPill(torrent.status.leadingIcon, torrent.statusLabel())
                 // The same coloured pill as on the torrent list; "No label" has no hue of its own
                 val label = torrent.labels.firstOrNull()
@@ -597,16 +598,15 @@ private fun OverviewCard(
                 Text(
                     // Matches the mockup's `.ovhead{text-transform:uppercase}`
                     title.uppercase(),
-                    style = MaterialTheme.typography.labelSmall,
+                    style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.Bold,
-                    letterSpacing = 0.5.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
             Text(
                 hero,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
                 color = accent,
                 modifier = Modifier.padding(top = 8.dp, bottom = 6.dp),
             )
@@ -614,11 +614,12 @@ private fun OverviewCard(
                 if (index > 0) {
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f))
                 }
-                Row(
-                    Modifier.fillMaxWidth().padding(vertical = 7.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
+                FlowRow(
+                    Modifier.fillMaxWidth().padding(vertical = 6.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(2.dp),
                 ) {
-                    Text(key, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(key, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Text(value, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
                 }
             }
@@ -632,12 +633,13 @@ private data class StatTileData(val label: String, val value: String, val wrap: 
 @Composable
 private fun StatTileGrid(tiles: List<StatTileData>) {
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        tiles.chunked(2).forEach { pair ->
+        tiles.filterNot { it.wrap }.chunked(2).forEach { pair ->
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 pair.forEach { tile -> StatTile(tile, Modifier.weight(1f)) }
                 if (pair.size == 1) Spacer(Modifier.weight(1f))
             }
         }
+        tiles.filter { it.wrap }.forEach { StatTile(it, Modifier.fillMaxWidth()) }
     }
 }
 
@@ -650,8 +652,7 @@ private fun StatTile(tile: StatTileData, modifier: Modifier = Modifier) {
                 tile.value,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
-                maxLines = if (tile.wrap) Int.MAX_VALUE else 1,
-                overflow = if (tile.wrap) TextOverflow.Clip else TextOverflow.Ellipsis,
+                softWrap = true,
                 modifier = Modifier.padding(top = 4.dp),
             )
         }
@@ -704,12 +705,12 @@ private fun FileRow(file: TorrentFile, onSetPriority: (FilePriority) -> Unit) {
             Column(Modifier.weight(1f)) {
                 Text(
                     file.path,
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.SemiBold,
                 )
                 Text(
                     "${formatBytes(file.downloadedBytes)} / ${formatBytes(file.sizeBytes)} · ${(file.progress * 100).toInt()}%",
-                    style = MaterialTheme.typography.labelSmall,
+                    style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Spacer(Modifier.height(7.dp))
@@ -757,7 +758,7 @@ private fun PriorityChip(priority: FilePriority) {
     Surface(shape = MaterialTheme.shapes.extraLarge, color = container) {
         Text(
             priority.label(),
-            style = MaterialTheme.typography.labelSmall,
+            style = MaterialTheme.typography.labelMedium,
             fontWeight = FontWeight.Bold,
             color = content,
             modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
@@ -795,7 +796,7 @@ private fun TrackersTab(trackers: List<Tracker>) {
 
 @Composable
 private fun TrackerRow(tracker: Tracker) {
-    Row(Modifier.fillMaxWidth().padding(vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+    Row(Modifier.fillMaxWidth().heightIn(min = 72.dp).padding(vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
         Icon(
             Icons.Rounded.Lan,
             contentDescription = null,
@@ -806,13 +807,13 @@ private fun TrackerRow(tracker: Tracker) {
         Column(Modifier.weight(1f)) {
             Text(
                 trackerHost(tracker.url),
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.SemiBold,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
             trackerDetail(tracker)?.let {
-                Text(it, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(it, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
         Spacer(Modifier.width(8.dp))
@@ -847,7 +848,7 @@ private fun TrackerStatusChip(status: TrackerStatus) {
     Surface(shape = MaterialTheme.shapes.extraLarge, color = container) {
         Text(
             stringResource(textRes),
-            style = MaterialTheme.typography.labelSmall,
+            style = MaterialTheme.typography.labelMedium,
             fontWeight = FontWeight.Bold,
             color = content,
             modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
@@ -888,7 +889,7 @@ private fun PeersTab(peers: List<Peer>) {
 @Composable
 private fun PeerRow(peer: Peer) {
     val statusColors = LocalStatusColors.current
-    Row(Modifier.fillMaxWidth().padding(vertical = 11.dp), verticalAlignment = Alignment.CenterVertically) {
+    Row(Modifier.fillMaxWidth().heightIn(min = 72.dp).padding(vertical = 11.dp), verticalAlignment = Alignment.CenterVertically) {
         Box(Modifier.width(26.dp), contentAlignment = Alignment.Center) {
             val flag = countryFlagEmoji(peer.countryCode)
             if (flag != null) {
@@ -907,7 +908,7 @@ private fun PeerRow(peer: Peer) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     peer.clientName ?: peer.ip,
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -917,15 +918,17 @@ private fun PeerRow(peer: Peer) {
                 PeerProgressChip(peer.progress)
             }
             Spacer(Modifier.height(3.dp))
-            Row(verticalAlignment = Alignment.Bottom) {
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
                 Row(
-                    Modifier.weight(1f),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     Text(
                         peer.endpoint,
-                        style = MaterialTheme.typography.labelSmall,
+                        style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
@@ -940,18 +943,17 @@ private fun PeerRow(peer: Peer) {
                         )
                     }
                 }
-                Spacer(Modifier.width(10.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     Text(
                         "↓ ${formatSpeed(peer.downloadRate)}",
-                        style = MaterialTheme.typography.labelSmall,
+                        style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = statusColors.downloading,
                         maxLines = 1,
                     )
                     Text(
                         "↑ ${formatSpeed(peer.uploadRate)}",
-                        style = MaterialTheme.typography.labelSmall,
+                        style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = statusColors.seeding,
                         maxLines = 1,
@@ -974,7 +976,7 @@ private fun PeerProgressChip(progress: Float) {
     Surface(shape = MaterialTheme.shapes.extraLarge, color = container) {
         Text(
             stringResource(R.string.details_peer_progress, (progress * 100).toInt()),
-            style = MaterialTheme.typography.labelSmall,
+            style = MaterialTheme.typography.labelMedium,
             fontWeight = FontWeight.Bold,
             color = content,
             modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),

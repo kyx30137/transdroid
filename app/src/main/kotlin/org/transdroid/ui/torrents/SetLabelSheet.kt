@@ -96,16 +96,12 @@ fun SetLabelSheet(
     val exactMatch = availableLabels.any { it.equals(trimmedFilter, ignoreCase = true) }
 
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
-        // Matches the mockup's .sheet-head: its own horizontal inset (22dp), distinct from the
-        // field below (16dp) - the field is deliberately a touch wider than the title/subtitle.
-        Column(Modifier.padding(horizontal = 22.dp)) {
+        Column(Modifier.padding(horizontal = 16.dp)) {
             Text(stringResource(R.string.details_set_label), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
             Text(
                 subtitle ?: stringResource(R.string.details_set_label_subtitle, torrentName),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.padding(top = 2.dp, bottom = 12.dp),
             )
         }
@@ -161,12 +157,12 @@ fun SetLabelSheet(
         }
 
         Row(
-            Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 12.dp),
+            Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
             horizontalArrangement = Arrangement.End,
         ) {
-            TextButton(onClick = onDismiss) { Text(stringResource(R.string.details_cancel)) }
+            TextButton(modifier = Modifier.heightIn(min = 48.dp), onClick = onDismiss) { Text(stringResource(R.string.details_cancel)) }
             Spacer(Modifier.width(8.dp))
-            Button(onClick = {
+            Button(modifier = Modifier.heightIn(min = 48.dp), onClick = {
                 // Whatever is still typed wins over a previous row tap - so typing a brand-new
                 // name and tapping this button directly creates it, without first requiring a
                 // separate tap on the "Create …" row below.
@@ -178,7 +174,7 @@ fun SetLabelSheet(
 }
 
 /**
- * Matches the mockup's `.sheet-field`: a fixed-height pill (grey fill, no border/label) with a
+ * Matches the mockup's `.sheet-field`: a growing pill (grey fill, no border/label) with a
  * leading icon and a plain placeholder - the same shape as [org.transdroid.ui.search.SearchScreen]'s
  * search bar, not the boxed/labeled [org.transdroid.ui.components.TransdroidTextField] used for
  * actual form fields elsewhere.
@@ -188,7 +184,7 @@ private fun LabelFilterField(value: String, onValueChange: (String) -> Unit, mod
     Row(
         modifier
             .fillMaxWidth()
-            .height(50.dp)
+            .heightIn(min = 56.dp)
             .clip(RoundedCornerShape(25.dp))
             .background(MaterialTheme.colorScheme.surfaceContainer)
             .padding(horizontal = 16.dp),
@@ -200,7 +196,7 @@ private fun LabelFilterField(value: String, onValueChange: (String) -> Unit, mod
             if (value.isEmpty()) {
                 Text(
                     stringResource(R.string.details_label_filter_hint),
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
@@ -208,7 +204,7 @@ private fun LabelFilterField(value: String, onValueChange: (String) -> Unit, mod
                 value = value,
                 onValueChange = onValueChange,
                 singleLine = true,
-                textStyle = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurface),
+                textStyle = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurface),
                 cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                 modifier = Modifier.fillMaxWidth(),
             )
@@ -235,6 +231,7 @@ private fun LabelRow(
             .clip(RoundedCornerShape(16.dp))
             .background(containerColor)
             .clickable(onClick = onClick)
+            .heightIn(min = 56.dp)
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(14.dp),
@@ -250,7 +247,7 @@ private fun LabelRow(
         }
         Text(
             name,
-            style = MaterialTheme.typography.bodyMedium,
+            style = MaterialTheme.typography.bodyLarge,
             fontWeight = FontWeight.SemiBold,
             color = contentColor,
             maxLines = 1,

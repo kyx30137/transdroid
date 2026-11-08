@@ -258,7 +258,7 @@ private fun RssRow(entry: RssEntry, added: Boolean, onAddClick: () -> Unit) {
         Column(Modifier.weight(1f)) {
             Text(
                 entry.item.title,
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.titleMedium,
                 fontWeight = if (entry.isNew) FontWeight.Bold else FontWeight.SemiBold,
                 color = if (entry.isNew) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 2,

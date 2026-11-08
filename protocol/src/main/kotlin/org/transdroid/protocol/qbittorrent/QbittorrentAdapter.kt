@@ -16,6 +16,7 @@
  */
 package org.transdroid.protocol.qbittorrent
 
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -32,6 +33,7 @@ import okhttp3.Response
 import org.transdroid.protocol.DaemonAdapter
 import org.transdroid.protocol.DaemonConfig
 import org.transdroid.protocol.DaemonException
+import org.transdroid.protocol.DownloadLocationInfo
 import org.transdroid.protocol.FilePriority
 import org.transdroid.protocol.Peer
 import org.transdroid.protocol.Torrent
@@ -82,6 +84,48 @@ class QbittorrentAdapter(
         val infos = get("api/v2/torrents/info").use { it.decodeJsonListOrThrow<TorrentInfo>("torrent list") }
         return infos.map { it.toTorrent() }
     }
+
+    override suspend fun downloadLocationInfo(): DownloadLocationInfo {
+        // Fetch independently through the normal authentication path: an unavailable source
+        // must not discard useful suggestions from the other one. Do not log preferences.
+        val preferences = optionalLocationSource {
+            get("api/v2/app/preferences").use { it.decodeJsonObjectOrThrow<DownloadPreferences>("preferences") }
+        }
+        val categories = optionalLocationSource {
+            get("api/v2/torrents/categories").use {
+                it.decodeJsonObjectOrThrow<Map<String, DownloadCategory>>("categories")
+            }
+        }
+        return DownloadLocationInfo(
+            defaultPath = preferences?.save_path?.takeIf { it.isNotBlank() },
+            categoryPaths = categories.orEmpty().mapNotNull { (name, category) ->
+                category.savePath?.takeIf { it.isNotBlank() }?.let { name to it }
+            }.toMap(),
+            automaticManagement = preferences?.auto_tmm_enabled,
+            defaultAvailable = preferences != null,
+            categoriesAvailable = categories != null,
+        )
+    }
+
+    private suspend fun <T> optionalLocationSource(fetch: suspend () -> T): T? = try {
+        fetch()
+    } catch (e: CancellationException) {
+        throw e
+    } catch (_: DaemonException) {
+        null
+    } catch (_: java.io.IOException) {
+        // Body reads can fail after executeOnIo has returned the response headers.
+        null
+    }
+
+    @Serializable
+    private data class DownloadPreferences(
+        val save_path: String? = null,
+        val auto_tmm_enabled: Boolean? = null,
+    )
+
+    @Serializable
+    private data class DownloadCategory(val savePath: String? = null)
 
     override suspend fun addByUrl(url: String, startPaused: Boolean, downloadLocation: String?) {
         val form = FormBody.Builder().add("urls", url).apply {
@@ -396,6 +440,8 @@ class QbittorrentAdapter(
             val stream = body?.byteStream() ?: return@withContext emptyList()
             try {
                 json.decodeFromStream<List<T>>(stream)
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 throw DaemonException.UnexpectedResponse("Cannot parse qBittorrent $what", e)
             }
@@ -413,6 +459,8 @@ class QbittorrentAdapter(
                 ?: throw DaemonException.UnexpectedResponse("Empty qBittorrent $what response")
             try {
                 json.decodeFromStream<T>(stream)
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 throw DaemonException.UnexpectedResponse("Cannot parse qBittorrent $what", e)
             }

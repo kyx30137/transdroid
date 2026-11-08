@@ -58,31 +58,21 @@ import org.transdroid.R
  */
 @Composable
 fun AddTorrentOptionsSection(
-    location: String,
-    onLocationChange: (String) -> Unit,
+    location: String?,
+    onLocationChange: (String?) -> Unit,
     recentLocations: List<String>,
     startPaused: Boolean,
     onStartPausedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier) {
-        DownloadLocationField(value = location, onValueChange = onLocationChange)
-        if (recentLocations.isNotEmpty()) {
-            Spacer(Modifier.height(6.dp))
-            Text(
-                stringResource(R.string.add_location_helper),
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(horizontal = 6.dp),
-            )
-            Spacer(Modifier.height(10.dp))
-            LocationChipsRow(
-                locations = recentLocations,
-                selectedPath = location.trim(),
-                onSelect = onLocationChange,
-            )
-        }
-        Spacer(Modifier.height(18.dp))
+        val options = LocalDownloadPaths.current
+        DownloadPathPicker(
+            location = location,
+            onLocationChange = onLocationChange,
+            options = options.copy(recentPaths = (options.recentPaths + recentLocations).distinct()),
+        )
+        Spacer(Modifier.height(16.dp))
         AddPausedRow(startPaused, onStartPausedChange)
     }
 }

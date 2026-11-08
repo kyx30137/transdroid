@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The in-app "What's new" history from ui/settings/Changelog.kt. Kept apart from strings.xml
+  because it grows by a block per release and is never referenced from layouts.
+
+  Translators: these are release notes shown under About > What's new. Keep version numbers as-is.
+-->
+<resources>
+
+    <!-- Release dates -->
+    <string name="changelog_date_2026_11">2026 年 11 月</string>
+    <string name="changelog_date_2026_10">2026 年 10 月</string>
+    <string name="changelog_date_2026_09">2026 年 9 月</string>
+
+    <!-- Release notes, newest release first -->
+    <string name="changelog_3_0_0_beta4_1">长按任务即可选中，然后一次性开始、暂停、校验、打标签、移动或删除一个或多个任务；该功能取代了滑动操作</string>
+    <string name="changelog_3_0_0_beta4_2">“无标签”筛选项始终可用，即使所有任务都已带标签</string>
+    <string name="changelog_3_0_0_beta4_3">筛选后没有任务时，列表会明确提示，并提供一键清除全部筛选</string>
+    <string name="changelog_3_0_0_beta4_4">修复设置标签和设置位置的弹层只弹出到一半、按钮被遮挡的问题</string>
+    <string name="changelog_3_0_0_beta3_1">任务的标签会在列表和详情页中以彩色胶囊形式显示</string>
+    <string name="changelog_3_0_0_beta3_2">从筛选菜单切换服务器后，该菜单会自动关闭</string>
+    <string name="changelog_3_0_0_beta3_3">滑动任务以开始/暂停或删除后，列表行会平滑归位</string>
+    <string name="changelog_3_0_0_beta3_4">更新至最新的 Android 库</string>
+    <string name="changelog_3_0_0_beta2_1">状态、标签和 Tracker 筛选按服务器分别记忆，重启应用后依然保留</string>
+    <string name="changelog_3_0_0_beta2_2">来自 transdroid.org 和 GitHub 的版本每天检查一次更新，可在设置中关闭</string>
+    <string name="changelog_3_0_0_beta2_3">通知和主题化启动图标显示 Transdroid 标识</string>
+    <string name="changelog_3_0_0_beta1_1">从 Transdroid 2 升级会一并迁移您的服务器和 RSS 订阅</string>
+    <string name="changelog_3_0_0_beta1_2">可在“设置 &gt; 备份”中导入 Transdroid 2 导出的设置</string>
+    <string name="changelog_3_0_0_beta1_3">新增小组件设置：可为每个小组件单独选择服务器、排序方式，以及是否显示非活动任务</string>
+    <string name="changelog_3_0_0_beta1_4">可在多个 Wi-Fi 网络下使用本地服务器设置</string>
+    <string name="changelog_3_0_0_beta1_5">任务列表和详情页改为沉浸式全屏绘制，添加按钮不会被导航栏遮挡</string>
+    <string name="changelog_3_0_0_beta1_6">修复小组件总是显示第一个服务器、而不是为其选择的服务器的问题</string>
+    <string name="changelog_3_0_0_beta1_7">修复列表中最后一个任务被添加按钮遮挡的问题</string>
+    <string name="changelog_3_0_0_alpha6_1">向右滑动任务可开始/暂停，向左滑动可删除</string>
+    <string name="changelog_3_0_0_alpha6_2">主屏幕小组件新增播放/暂停按钮</string>
+    <string name="changelog_3_0_0_alpha6_3">Transmission 支持直接填写其 Web 界面 URL</string>
+    <string name="changelog_3_0_0_alpha6_4">服务器拒绝连接时的错误提示更清晰</string>
+    <string name="changelog_3_0_0_alpha6_5">任务数量成千上万时刷新更轻快</string>
+    <string name="changelog_3_0_0_alpha6_6">修复 qBittorrent 5.2 的用户名/密码登录</string>
+    <string name="changelog_3_0_0_alpha6_7">修复自定义请求头（如 Cloudflare Access）导致无法登录的问题</string>
+    <string name="changelog_3_0_0_alpha6_8">修复 Deluge 守护进程重启后无法重连的问题</string>
+    <string name="changelog_3_0_0_alpha6_9">修复若干 rTorrent、Transmission、IPv6 和 RSS 问题</string>
+    <string name="changelog_3_0_0_alpha5_1">连接标签页支持按速度、IP 地址或客户端排序</string>
+    <string name="changelog_3_0_0_alpha5_2">可选的本机国家/地区数据库可为每个 Peer 显示国旗，即使客户端本身不上报该信息</string>
+    <string name="changelog_3_0_0_alpha5_3">可使用 Web UI 的 API 密钥连接 qBittorrent 5.2+，无需用户名/密码</string>
+    <string name="changelog_3_0_0_alpha5_4">详情页的概览/文件/Tracker/连接标签页支持左右滑动切换</string>
+    <string name="changelog_3_0_0_alpha5_5">任务列表的排序方式在重启应用后保留，修改排序后会滚回顶部</string>
+    <string name="changelog_3_0_0_alpha4_1">详情页新增连接标签页：显示已连接 Peer 的客户端、国家/地区、进度和速度</string>
+    <string name="changelog_3_0_0_alpha4_2">修复索引站需要单独登录（如 seedbox 会员区）时，从搜索添加任务会静默失败的问题；该登录与 API 密钥相互独立</string>
+    <string name="changelog_3_0_0_alpha4_3">显示为“出错”但实际已停止的任务，现在提供“开始”而不只是“暂停”</string>
+    <string name="changelog_3_0_0_alpha3_1">任务列表支持按 Tracker 筛选</string>
+    <string name="changelog_3_0_0_alpha3_2">添加任务时可设置下载位置，从搜索和 RSS 添加时同样支持</string>
+    <string name="changelog_3_0_0_alpha3_3">重新设计添加任务界面</string>
+    <string name="changelog_3_0_0_alpha3_4">主屏幕小组件可滚动显示正在运行的任务；每个小组件实例可单独选择服务器</string>
+    <string name="changelog_3_0_0_alpha3_5">在指定 Wi-Fi 网络下使用另一套连接设置，例如可直连局域网的 seedbox</string>
+    <string name="changelog_3_0_0_alpha3_6">详情页的操作图标统一使用强调色</string>
+    <string name="changelog_3_0_0_alpha3_7">详情页概览标签页的位置和标签文字改为自动换行，不再被截断</string>
+    <string name="changelog_3_0_0_alpha3_8">编辑服务器界面更清晰：前置图标、密码显示开关，以及更易懂的连接帮助说明</string>
+    <string name="changelog_3_0_0_alpha3_9">小组件使用真实的应用图标，不再使用通用角标</string>
+    <string name="changelog_3_0_0_alpha3_10">修复小组件图标显示过小的问题</string>
+    <string name="changelog_3_0_0_alpha3_11">修复平板端详情页占位样式和顶栏状态栏内边距</string>
+    <string name="changelog_3_0_0_alpha2_1">新增关于页：许可证、项目链接、更新日志和捐赠入口</string>
+    <string name="changelog_3_0_0_alpha2_2">可在详情页为任务设置标签，或直接新建标签</string>
+    <string name="changelog_3_0_0_alpha2_3">可在任务详情页校验数据（强制重新校验）</string>
+    <string name="changelog_3_0_0_alpha2_4">qBittorrent 和 Transmission 支持切换备用（“乌龟”）速度限制</string>
+    <string name="changelog_3_0_0_alpha2_5">可直接在任务列表中切换服务器，并重新设计了应用图标</string>
+    <string name="changelog_3_0_0_alpha2_6">新增“发送错误报告”以获取支持或反馈问题，由 Transdroid 2 现代化而来</string>
+    <string name="changelog_3_0_0_alpha2_7">修复预测性返回手势的动画</string>
+    <string name="changelog_3_0_0_alpha2_8">重新设计任务列表、RSS 和搜索的空状态</string>
+    <string name="changelog_3_0_0_alpha2_9">暂停或开始后，任务详情会立即刷新</string>
+    <string name="changelog_3_0_0_alpha2_10">修复 Deluge 服务器加载任务时报“Unknown method”错误的问题</string>
+    <string name="changelog_3_0_0_alpha2_11">修复 qBittorrent 因每次轮询都重试失败登录而被封禁的问题</string>
+    <string name="changelog_3_0_0_alpha1_1">使用 Kotlin 和 Jetpack Compose 完成完全重写</string>
+    <string name="changelog_3_0_0_alpha1_2">RSS 订阅、Torznab 搜索、任务完成通知和主屏幕小组件</string>
+    <string name="changelog_3_0_0_alpha1_3">证书固定、局域网服务器发现、标签和单文件优先级</string>
+    <string name="changelog_3_0_0_alpha1_4">支持通过 Cloudflare Access 等登录门户连接，并支持以暂停状态添加任务</string>
+    <string name="changelog_3_0_0_alpha1_5">设置加密备份与恢复</string>
+    <string name="changelog_3_0_0_alpha1_6">连接错误提示更清晰，并新增应用内连接帮助</string>
+
+</resources>

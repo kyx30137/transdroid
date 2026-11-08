@@ -27,7 +27,7 @@ import org.transdroid.protocol.transmission.TransmissionAdapter
 /**
  * A connection to one torrent daemon. Implementations are stateless beyond connection/session
  * bookkeeping and safe to call from any dispatcher; all calls block on network I/O internally
- * on the IO dispatcher. All methods throw [DaemonException] on failure.
+ * on the IO dispatcher. Methods throw [DaemonException] on failure unless documented otherwise.
  */
 interface DaemonAdapter {
     val config: DaemonConfig
@@ -36,6 +36,13 @@ interface DaemonAdapter {
     suspend fun testConnection(): String
 
     suspend fun listTorrents(): List<Torrent>
+
+    /**
+     * Optional server download path suggestions. Unsupported adapters return unknown sources.
+     * Implementations may preserve one successful source when another fails; cancellation
+     * must propagate. These suggestions do not imply directory browsing support.
+     */
+    suspend fun downloadLocationInfo(): DownloadLocationInfo = DownloadLocationInfo()
 
     /**
      * Adds a torrent by magnet link or a URL to a .torrent file. With [startPaused] the

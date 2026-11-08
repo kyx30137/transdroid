@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Languages the app ships. Having this file lets Android 13+ list Transdroid under
+  Settings > System > Languages > App languages, where the user can pick a language
+  per app; without a choice the app simply follows the system language.
+
+  The default resources in res/values are English, translations live in res/values-<locale>.
+-->
+<locale-config xmlns:android="http://schemas.android.com/apk/res/android">
+    <locale android:name="en" />
+    <locale android:name="zh-CN" />
+</locale-config>

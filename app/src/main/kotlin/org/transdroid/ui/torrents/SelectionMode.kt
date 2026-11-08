@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
@@ -88,7 +89,7 @@ internal fun SelectionTopBar(count: Int, onClose: () -> Unit, onSelectAll: () ->
     Surface(color = MaterialTheme.colorScheme.surfaceContainer) {
         Column(Modifier.windowInsetsPadding(WindowInsets.statusBars)) {
             Row(
-                Modifier.fillMaxWidth().height(64.dp).padding(horizontal = 6.dp),
+                Modifier.fillMaxWidth().heightIn(min = 64.dp).padding(horizontal = 6.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 IconButton(onClick = onClose) {
@@ -128,7 +129,7 @@ internal fun SelectionActionBar(actions: SelectionActions, modifier: Modifier = 
         shape = RoundedCornerShape(34.dp),
         color = MaterialTheme.colorScheme.surfaceContainer,
         shadowElevation = 4.dp,
-        modifier = modifier.fillMaxWidth().height(68.dp),
+        modifier = modifier.fillMaxWidth().heightIn(min = 68.dp),
     ) {
         Row(horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically) {
             BarAction(Icons.Rounded.PlayArrow, R.string.selection_start, actions.canStart, actions.onStart)
@@ -145,6 +146,7 @@ internal fun SelectionActionBar(actions: SelectionActions, modifier: Modifier = 
 private fun BarAction(icon: ImageVector, labelRes: Int, enabled: Boolean, onClick: () -> Unit, danger: Boolean = false) {
     val tint = if (danger) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
     TextButton(
+        modifier = Modifier.heightIn(min = 48.dp),
         onClick = onClick,
         enabled = enabled,
         colors = ButtonDefaults.textButtonColors(contentColor = tint),
@@ -153,7 +155,7 @@ private fun BarAction(icon: ImageVector, labelRes: Int, enabled: Boolean, onClic
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Icon(icon, contentDescription = null, modifier = Modifier.size(23.dp))
-            Text(stringResource(labelRes), style = MaterialTheme.typography.labelSmall, maxLines = 1)
+            Text(stringResource(labelRes), style = MaterialTheme.typography.labelMedium, maxLines = 1)
         }
     }
 }
@@ -161,7 +163,7 @@ private fun BarAction(icon: ImageVector, labelRes: Int, enabled: Boolean, onClic
 /** The tablet's details pane while selecting: what is selected, and large action buttons. */
 @Composable
 internal fun SelectionSummaryPane(torrents: List<Torrent>, actions: SelectionActions, modifier: Modifier = Modifier) {
-    Column(modifier.verticalScroll(rememberScrollState()).padding(horizontal = 24.dp, vertical = 18.dp)) {
+    Column(modifier.verticalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical = 16.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(
                 Modifier.size(52.dp).clip(RoundedCornerShape(16.dp)).background(MaterialTheme.colorScheme.primaryContainer),
@@ -170,7 +172,7 @@ internal fun SelectionSummaryPane(torrents: List<Torrent>, actions: SelectionAct
                 Icon(Icons.Rounded.LibraryAddCheck, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
             }
             Spacer(Modifier.width(14.dp))
-            Column {
+            Column(Modifier.weight(1f)) {
                 Text(
                     stringResource(R.string.selection_summary_title, torrents.size),
                     style = MaterialTheme.typography.titleLarge,
@@ -190,18 +192,19 @@ internal fun SelectionSummaryPane(torrents: List<Torrent>, actions: SelectionAct
             SummaryCard(R.string.selection_upload, formatSpeed(torrents.sumOf { it.uploadRate }), Modifier.weight(1f))
         }
         FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Button(onClick = actions.onStart, enabled = actions.canStart) {
+            Button(modifier = Modifier.heightIn(min = 48.dp), onClick = actions.onStart, enabled = actions.canStart) {
                 ButtonContent(Icons.Rounded.PlayArrow, R.string.selection_start)
             }
-            FilledTonalButton(onClick = actions.onPause, enabled = actions.canPause) {
+            FilledTonalButton(modifier = Modifier.heightIn(min = 48.dp), onClick = actions.onPause, enabled = actions.canPause) {
                 ButtonContent(Icons.Rounded.Pause, R.string.selection_pause)
             }
-            OutlinedButton(onClick = actions.onCheck) { ButtonContent(Icons.Rounded.Checklist, R.string.details_check_data) }
-            OutlinedButton(onClick = actions.onLabel) { ButtonContent(Icons.Rounded.Sell, R.string.details_set_label) }
-            OutlinedButton(onClick = actions.onMove) {
+            OutlinedButton(modifier = Modifier.heightIn(min = 48.dp), onClick = actions.onCheck) { ButtonContent(Icons.Rounded.Checklist, R.string.details_check_data) }
+            OutlinedButton(modifier = Modifier.heightIn(min = 48.dp), onClick = actions.onLabel) { ButtonContent(Icons.Rounded.Sell, R.string.details_set_label) }
+            OutlinedButton(modifier = Modifier.heightIn(min = 48.dp), onClick = actions.onMove) {
                 ButtonContent(Icons.AutoMirrored.Rounded.DriveFileMove, R.string.selection_move)
             }
             OutlinedButton(
+                modifier = Modifier.heightIn(min = 48.dp),
                 onClick = actions.onRemove,
                 colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
             ) { ButtonContent(Icons.Rounded.Delete, R.string.selection_remove) }
@@ -213,7 +216,7 @@ internal fun SelectionSummaryPane(torrents: List<Torrent>, actions: SelectionAct
         ) {
             Column(Modifier.padding(vertical = 6.dp)) {
                 torrents.forEach { torrent ->
-                    Row(Modifier.padding(horizontal = 16.dp, vertical = 9.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Row(Modifier.heightIn(min = 56.dp).padding(horizontal = 16.dp, vertical = 9.dp), verticalAlignment = Alignment.CenterVertically) {
                         Icon(
                             torrent.status.leadingIcon,
                             contentDescription = null,
@@ -221,7 +224,7 @@ internal fun SelectionSummaryPane(torrents: List<Torrent>, actions: SelectionAct
                             modifier = Modifier.size(20.dp),
                         )
                         Spacer(Modifier.width(12.dp))
-                        Text(torrent.name, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
+                        Text(torrent.name, style = MaterialTheme.typography.bodyLarge, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
                         Spacer(Modifier.width(12.dp))
                         Text(
                             formatBytes(torrent.sizeBytes),
@@ -247,7 +250,7 @@ private fun SummaryCard(labelRes: Int, value: String, modifier: Modifier = Modif
     Surface(shape = RoundedCornerShape(20.dp), color = MaterialTheme.colorScheme.surfaceContainerLow, modifier = modifier) {
         Column(Modifier.padding(horizontal = 16.dp, vertical = 14.dp)) {
             Text(stringResource(labelRes), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Text(value, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
+            Text(value, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
         }
     }
 }
@@ -279,10 +282,10 @@ internal fun RemoveTorrentsDialog(torrents: List<Torrent>, onDismiss: () -> Unit
             }
         },
         confirmButton = {
-            TextButton(onClick = { onConfirm(alsoDeleteData) }) { Text(stringResource(R.string.details_remove_confirm)) }
+            TextButton(modifier = Modifier.heightIn(min = 48.dp), onClick = { onConfirm(alsoDeleteData) }) { Text(stringResource(R.string.details_remove_confirm)) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text(stringResource(R.string.details_cancel)) }
+            TextButton(modifier = Modifier.heightIn(min = 48.dp), onClick = onDismiss) { Text(stringResource(R.string.details_cancel)) }
         },
     )
 }

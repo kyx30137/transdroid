@@ -87,6 +87,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.transdroid.R
+import org.transdroid.data.DownloadPaths
 import org.transdroid.errorlog.ErrorLog
 import org.transdroid.ui.components.AddTorrentOptionsSection
 import org.transdroid.ui.message
@@ -107,12 +108,13 @@ fun AddTorrentScreen(
     val context = LocalContext.current
     val clipboard = LocalClipboard.current
     val scope = rememberCoroutineScope()
+    LaunchedEffect(ui.activeProfile?.id) { viewModel.refreshDownloadLocations() }
 
     val initialIsFile = initialUrl.startsWith("content:") || initialUrl.startsWith("file:")
     var url by rememberSaveable { mutableStateOf(if (initialIsFile) "" else initialUrl) }
     var fileUri by rememberSaveable { mutableStateOf(if (initialIsFile) initialUrl else null) }
     var invalidInput by rememberSaveable { mutableStateOf(false) }
-    var location by rememberSaveable { mutableStateOf("") }
+    var location by rememberSaveable(ui.activeProfile?.id) { mutableStateOf<String?>(null) }
     var startPaused by rememberSaveable { mutableStateOf(false) }
     // Deliberately not saveable: the completion callback writes to this composition's state,
     // so restoring `true` across recreation would leave the button disabled forever
@@ -129,7 +131,8 @@ fun AddTorrentScreen(
 
     fun submit() {
         val pickedFile = fileUri
-        val downloadLocation = location.trim().ifBlank { null }
+        if (location != null && !DownloadPaths.isValid(location.orEmpty())) return
+        val downloadLocation = DownloadPaths.submissionPath(location)
         error = null
         fileReadFailed = false
         if (pickedFile != null) {
@@ -162,14 +165,7 @@ fun AddTorrentScreen(
         }
     }
 
-    // With a single configured server there is nothing to choose: a picked or opened
-    // .torrent file is added right away instead of asking for another confirming tap.
-    // (The paused checkbox sits above the picker, so that choice still comes first.)
-    LaunchedEffect(fileUri, ui.profileCount) {
-        if (fileUri != null && ui.profileCount == 1 && !submitting && error == null && !fileReadFailed) {
-            submit()
-        }
-    }
+    // Picked/shared files use the same confirmation as URLs, so the directory can be chosen first.
 
     Scaffold(
         topBar = {
@@ -197,7 +193,8 @@ fun AddTorrentScreen(
                 ) {
                     Button(
                         onClick = { submit() },
-                        enabled = !submitting && ui.activeProfile != null && (url.isNotBlank() || fileUri != null),
+                        enabled = !submitting && ui.activeProfile != null && (url.isNotBlank() || fileUri != null) &&
+                            (location == null || DownloadPaths.isValid(location.orEmpty())),
                         shape = MaterialTheme.shapes.extraLarge,
                         modifier = Modifier.fillMaxWidth().height(54.dp),
                     ) {

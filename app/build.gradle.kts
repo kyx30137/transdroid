@@ -21,8 +21,8 @@ android {
         applicationId = "org.transdroid"
         minSdk = 29
         targetSdk = 36
-        versionCode = 3000016
-        versionName = "3.0.0-beta4"
+        versionCode = 3000019
+        versionName = "3.0.0-beta4-step3"
     }
 
     if (hasSigningConfig) {
@@ -55,7 +55,9 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            if (hasSigningConfig) signingConfig = signingConfigs.getByName("release")
+            // Sign with the release keystore when keystore.properties provides one (CI, F-Droid);
+            // otherwise fall back to the debug key so a locally built release APK installs as-is.
+            signingConfig = signingConfigs.getByName(if (hasSigningConfig) "release" else "debug")
             // Reproducible builds: no VCS metadata baked into the APK
             vcsInfo.include = false
         }
@@ -81,6 +83,14 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
+    }
+
+    // Robolectric renders the real Compose UI on the JVM (see TorrentListScreenshotTest), which
+    // needs the merged resources and manifest of the variant under test.
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
+        }
     }
 }
 
@@ -118,4 +128,17 @@ dependencies {
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
+    // JVM-side screenshot rendering of the real Compose UI; no emulator or KVM needed.
+    testImplementation(libs.robolectric)
+    testImplementation(libs.androidx.compose.ui.test.junit4)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
+}
+
+// Robolectric resolves its android-all runtime from Maven at test time. Allow pointing that at a
+// mirror without baking one into the repo:
+//   ./gradlew :app:testFullDebugUnitTest -Probolectric.repo.url=https://<mirror>/public
+tasks.withType<Test>().configureEach {
+    providers.gradleProperty("robolectric.repo.url").orNull?.let {
+        systemProperty("robolectric.dependency.repo.url", it)
+    }
 }

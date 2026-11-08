@@ -88,6 +88,22 @@ enum class TorrentStatus {
         get() = this == PAUSED || this == ERROR
 }
 
+/**
+ * Server-reported suggestions for the add dialog, not an explicit user selection.
+ * Keep downloadLocation null when adding with server defaults, even when [defaultPath] is
+ * displayed: sending it explicitly can disable automatic management. [automaticManagement]
+ * is the server's default for new torrents; null means unknown, not false.
+ * Availability flags indicate a successfully decoded source, even if it contains no paths.
+ * Blank paths are omitted; category paths are reported verbatim, not resolved or browsed.
+ */
+data class DownloadLocationInfo(
+    val defaultPath: String? = null,
+    val categoryPaths: Map<String, String> = emptyMap(),
+    val automaticManagement: Boolean? = null,
+    val defaultAvailable: Boolean = false,
+    val categoriesAvailable: Boolean = false,
+)
+
 /** One torrent as reported by a daemon, normalized across client types. */
 data class Torrent(
     /** Daemon-specific identifier (numeric id for Transmission, info-hash for qBittorrent). */

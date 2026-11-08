@@ -194,14 +194,36 @@ class SettingsRepository(private val context: Context) {
         }
 
     suspend fun addRecentDownloadLocation(profileId: String, location: String) {
-        if (location.isBlank()) return
+        val normalized = DownloadPaths.normalize(location)
+        if (!DownloadPaths.isValid(normalized)) return
         context.settingsDataStore.edit { prefs ->
             val key = recentLocationsKey(profileId)
             val existing = prefs[key]?.split(RECENT_LOCATIONS_SEPARATOR)?.filter { it.isNotBlank() } ?: emptyList()
-            val updated = (listOf(location) + existing.filterNot { it == location }).take(MAX_RECENT_LOCATIONS)
+            val updated = (listOf(normalized) + existing.map(DownloadPaths::normalize).filterNot { it == normalized }).distinct().take(MAX_RECENT_LOCATIONS)
             prefs[key] = updated.joinToString(RECENT_LOCATIONS_SEPARATOR)
         }
     }
+
+    /** Per-server local directory names. Empty name removes an alias; never touches the daemon. */
+    fun downloadPathAliases(profileId: String): Flow<Map<String, String>> =
+        context.settingsDataStore.data.map { DownloadPaths.decode(it[pathAliasesKey(profileId)]) }
+
+    suspend fun setDownloadPathAlias(profileId: String, path: String, name: String): PathAliasError? {
+        var error: PathAliasError? = null
+        context.settingsDataStore.edit { prefs ->
+            val aliases = DownloadPaths.decode(prefs[pathAliasesKey(profileId)])
+            error = DownloadPaths.validateAlias(path, name, aliases)
+            if (error == null) {
+                val key = DownloadPaths.normalize(path)
+                val updated = aliases.toMutableMap()
+                if (name.isBlank()) updated.remove(key) else updated[key] = name.trim()
+                prefs[pathAliasesKey(profileId)] = DownloadPaths.encode(updated)
+            }
+        }
+        return error
+    }
+
+    private fun pathAliasesKey(profileId: String) = stringPreferencesKey("download_path_aliases_$profileId")
 
     private fun recentLocationsKey(profileId: String) = stringPreferencesKey("recent_locations_$profileId")
 

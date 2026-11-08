@@ -28,14 +28,15 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -44,6 +45,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.ChevronRight
+import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Dns
 import androidx.compose.material.icons.rounded.Download
 import androidx.compose.material.icons.rounded.Email
@@ -51,7 +53,6 @@ import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.MoveToInbox
 import androidx.compose.material.icons.rounded.Notifications
 import androidx.compose.material.icons.rounded.Public
-import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.RssFeed
 import androidx.compose.material.icons.rounded.Save
@@ -100,13 +101,13 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.transdroid.BuildConfig
 import org.transdroid.R
-import org.transdroid.debug.DebugTools
 import org.transdroid.data.PeerSort
 import org.transdroid.data.RssFeed
 import org.transdroid.data.SettingsRepository
+import org.transdroid.debug.DebugTools
 import org.transdroid.errorlog.ErrorLog
-import org.transdroid.ui.rss.EditFeedDialog
 import org.transdroid.ui.components.TransdroidTextField
+import org.transdroid.ui.rss.EditFeedDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -566,13 +567,13 @@ fun SettingsScreen(
             title = { Text(stringResource(R.string.rss_delete_feed)) },
             text = { Text(feed.displayName) },
             confirmButton = {
-                TextButton(onClick = {
+                TextButton(modifier = Modifier.heightIn(min = 48.dp), onClick = {
                     viewModel.deleteFeed(feed.id)
                     deletingFeed = null
                 }) { Text(stringResource(R.string.details_remove_confirm)) }
             },
             dismissButton = {
-                TextButton(onClick = { deletingFeed = null }) { Text(stringResource(R.string.details_cancel)) }
+                TextButton(modifier = Modifier.heightIn(min = 48.dp), onClick = { deletingFeed = null }) { Text(stringResource(R.string.details_cancel)) }
             },
         )
     }
@@ -583,7 +584,7 @@ fun SettingsScreen(
             title = { Text(stringResource(R.string.settings_geoip_confirm_title)) },
             text = { Text(stringResource(R.string.settings_geoip_confirm_message)) },
             confirmButton = {
-                TextButton(onClick = {
+                TextButton(modifier = Modifier.heightIn(min = 48.dp), onClick = {
                     showGeoIpDialog = false
                     viewModel.downloadGeoIp { success ->
                         scope.launch {
@@ -593,7 +594,7 @@ fun SettingsScreen(
                 }) { Text(stringResource(R.string.settings_geoip_confirm_download)) }
             },
             dismissButton = {
-                TextButton(onClick = { showGeoIpDialog = false }) { Text(stringResource(R.string.details_cancel)) }
+                TextButton(modifier = Modifier.heightIn(min = 48.dp), onClick = { showGeoIpDialog = false }) { Text(stringResource(R.string.details_cancel)) }
             },
         )
     }
@@ -655,12 +656,12 @@ private fun PassphraseDialog(
             }
         },
         confirmButton = {
-            TextButton(onClick = { onConfirm(passphrase) }, enabled = passphrase.length >= 4) {
+            TextButton(modifier = Modifier.heightIn(min = 48.dp), onClick = { onConfirm(passphrase) }, enabled = passphrase.length >= 4) {
                 Text(confirmLabel)
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text(stringResource(R.string.details_cancel)) }
+            TextButton(modifier = Modifier.heightIn(min = 48.dp), onClick = onDismiss) { Text(stringResource(R.string.details_cancel)) }
         },
     )
 }
@@ -685,10 +686,10 @@ private fun SendReportDialog(onDismiss: () -> Unit, onSend: (includeLog: Boolean
             }
         },
         confirmButton = {
-            TextButton(onClick = { onSend(includeLog) }) { Text(stringResource(R.string.pref_sendlog_send)) }
+            TextButton(modifier = Modifier.heightIn(min = 48.dp), onClick = { onSend(includeLog) }) { Text(stringResource(R.string.pref_sendlog_send)) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text(stringResource(R.string.details_cancel)) }
+            TextButton(modifier = Modifier.heightIn(min = 48.dp), onClick = onDismiss) { Text(stringResource(R.string.details_cancel)) }
         },
     )
 }
@@ -726,19 +727,18 @@ internal fun SettingsRow(
         modifier = Modifier
             .fillMaxWidth()
             .let { if (onClick != null) it.clickable(onClick = onClick) else it }
-            .padding(horizontal = 18.dp, vertical = 12.dp),
+            .heightIn(min = 72.dp)
+            .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(24.dp))
         Column(Modifier.weight(1f)) {
-            Text(title, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(title, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
             Text(
                 subtitle,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
             )
         }
         trailing()
@@ -751,7 +751,8 @@ private fun SettingsAddRow(title: String, onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
-            .padding(horizontal = 12.dp, vertical = 12.dp),
+            .heightIn(min = 56.dp)
+            .padding(horizontal = 16.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(16.dp),
     ) {
@@ -772,7 +773,7 @@ private fun SettingsAddRow(title: String, onClick: () -> Unit) {
 internal fun SettingsChip(text: String) {
     Text(
         text,
-        style = MaterialTheme.typography.labelSmall,
+        style = MaterialTheme.typography.labelMedium,
         fontWeight = FontWeight.Bold,
         color = MaterialTheme.colorScheme.primary,
         modifier = Modifier

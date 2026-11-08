@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The in-app "What's new" history from ui/settings/Changelog.kt. Kept apart from strings.xml
+  because it grows by a block per release and is never referenced from layouts.
+
+  Translators: these are release notes shown under About > What's new. Keep version numbers as-is.
+-->
+<resources>
+
+    <!-- Release dates -->
+    <string name="changelog_date_2026_11">November 2026</string>
+    <string name="changelog_date_2026_10">October 2026</string>
+    <string name="changelog_date_2026_09">September 2026</string>
+
+    <!-- Release notes, newest release first -->
+    <string name="changelog_3_0_0_beta4_1">Long-press a torrent to select it, then start, pause, check, label, move or remove one or many at once; this replaces the swipe gestures</string>
+    <string name="changelog_3_0_0_beta4_2">The "No label" filter is always available, also when every torrent has a label</string>
+    <string name="changelog_3_0_0_beta4_3">When filters match no torrents, the list says so and offers to clear them all</string>
+    <string name="changelog_3_0_0_beta4_4">The set label and location sheets opened half-way, hiding their buttons</string>
+    <string name="changelog_3_0_0_beta3_1">A torrent\'s label shows as a coloured pill in the list and on the details screen</string>
+    <string name="changelog_3_0_0_beta3_2">The filter menu closes after switching server from it</string>
+    <string name="changelog_3_0_0_beta3_3">Swiping a torrent to start/pause or remove it slides the row back smoothly</string>
+    <string name="changelog_3_0_0_beta3_4">Updated to the latest Android libraries</string>
+    <string name="changelog_3_0_0_beta2_1">Your status, label and tracker filters are remembered per server, also after restarting the app</string>
+    <string name="changelog_3_0_0_beta2_2">Builds from transdroid.org and GitHub check daily for a new version, which can be turned off in Settings</string>
+    <string name="changelog_3_0_0_beta2_3">Notifications and themed launcher icons show the Transdroid badge</string>
+    <string name="changelog_3_0_0_beta1_1">Upgrading from Transdroid 2 brings your servers and RSS feeds along</string>
+    <string name="changelog_3_0_0_beta1_2">Import a Transdroid 2 settings export from Settings &gt; Backup</string>
+    <string name="changelog_3_0_0_beta1_3">New widget settings: pick each widget\'s server, sort order and whether to show inactive torrents</string>
+    <string name="changelog_3_0_0_beta1_4">Use local server settings on several Wi-Fi networks</string>
+    <string name="changelog_3_0_0_beta1_5">Torrent list and details are drawn edge to edge, with the Add button clear of the navigation bar</string>
+    <string name="changelog_3_0_0_beta1_6">A widget always showed the first server instead of the one picked for it</string>
+    <string name="changelog_3_0_0_beta1_7">The last torrent in the list sat under the Add button</string>
+    <string name="changelog_3_0_0_alpha6_1">Swipe a torrent right to start/pause it, left to remove it</string>
+    <string name="changelog_3_0_0_alpha6_2">Play/pause buttons on the home screen widget</string>
+    <string name="changelog_3_0_0_alpha6_3">Transmission accepts its web interface URL</string>
+    <string name="changelog_3_0_0_alpha6_4">Clearer errors when a server refuses to connect</string>
+    <string name="changelog_3_0_0_alpha6_5">Lighter refreshes with thousands of torrents</string>
+    <string name="changelog_3_0_0_alpha6_6">qBittorrent 5.2 username/password login</string>
+    <string name="changelog_3_0_0_alpha6_7">Custom headers (e.g. Cloudflare Access) breaking logins</string>
+    <string name="changelog_3_0_0_alpha6_8">Deluge reconnects after a daemon restart</string>
+    <string name="changelog_3_0_0_alpha6_9">Several rTorrent, Transmission, IPv6 and RSS issues</string>
+    <string name="changelog_3_0_0_alpha5_1">Sort the Peers tab by speed, IP address or client</string>
+    <string name="changelog_3_0_0_alpha5_2">Optional on-device country database shows a flag for every peer, even on clients that don\'t report it themselves</string>
+    <string name="changelog_3_0_0_alpha5_3">Connect to qBittorrent 5.2+ using its Web UI API key instead of a username/password</string>
+    <string name="changelog_3_0_0_alpha5_4">Swipe between the details screen\'s Overview/Files/Trackers/Peers tabs</string>
+    <string name="changelog_3_0_0_alpha5_5">Torrent list sort order is remembered across app restarts, and changing it scrolls back to the top</string>
+    <string name="changelog_3_0_0_alpha4_1">Peers tab on the details screen: client, country, progress and speed for connected peers</string>
+    <string name="changelog_3_0_0_alpha4_2">Adding a torrent from search could silently fail when the indexer needs its own login (e.g. a seedbox member area), separate from its API key</string>
+    <string name="changelog_3_0_0_alpha4_3">A torrent shown as "Error" but actually stopped now offers Start instead of only Pause</string>
+    <string name="changelog_3_0_0_alpha3_1">Filter the torrent list by tracker</string>
+    <string name="changelog_3_0_0_alpha3_2">Set a download location when adding a torrent, including from Search and RSS</string>
+    <string name="changelog_3_0_0_alpha3_3">Redesigned Add torrent screen</string>
+    <string name="changelog_3_0_0_alpha3_4">Home screen widget shows a scrollable list of running torrents; each widget instance can pick its own server</string>
+    <string name="changelog_3_0_0_alpha3_5">Connect using different settings while on a chosen Wi-Fi network, e.g. a seedbox also reachable directly over the LAN</string>
+    <string name="changelog_3_0_0_alpha3_6">Details screen action icons use a consistent accent color</string>
+    <string name="changelog_3_0_0_alpha3_7">Location and label text wraps instead of truncating on the details Overview tab</string>
+    <string name="changelog_3_0_0_alpha3_8">Clearer Edit Server screen: leading icons, a password-reveal toggle, and better connection help wording</string>
+    <string name="changelog_3_0_0_alpha3_9">Widget uses the real app icon instead of a generic badge</string>
+    <string name="changelog_3_0_0_alpha3_10">Widget icon rendering too small</string>
+    <string name="changelog_3_0_0_alpha3_11">Tablet details placeholder styling and top bar status bar inset</string>
+    <string name="changelog_3_0_0_alpha2_1">About screen with license, project links and a changelog, plus a donate link</string>
+    <string name="changelog_3_0_0_alpha2_2">Set a torrent\'s label, or create a new one, from its details screen</string>
+    <string name="changelog_3_0_0_alpha2_3">Verify data (force recheck) from the torrent details screen</string>
+    <string name="changelog_3_0_0_alpha2_4">Alternative ("turtle") speed limits toggle for qBittorrent and Transmission</string>
+    <string name="changelog_3_0_0_alpha2_5">Switch servers directly from the torrents list, and a redesigned app icon</string>
+    <string name="changelog_3_0_0_alpha2_6">"Send error report" to get support or report a bug, modernized from Transdroid 2</string>
+    <string name="changelog_3_0_0_alpha2_7">Predictive back gesture now animates correctly</string>
+    <string name="changelog_3_0_0_alpha2_8">Redesigned empty states across the torrents list, RSS and search</string>
+    <string name="changelog_3_0_0_alpha2_9">Torrent details refresh immediately after pausing or starting</string>
+    <string name="changelog_3_0_0_alpha2_10">Deluge servers failed to load torrents with an "Unknown method" error</string>
+    <string name="changelog_3_0_0_alpha2_11">qBittorrent could get itself banned by retrying a failed login every poll</string>
+    <string name="changelog_3_0_0_alpha1_1">Complete rebuild in Kotlin and Jetpack Compose</string>
+    <string name="changelog_3_0_0_alpha1_2">RSS feeds, Torznab search, finished-torrent notifications and a home screen widget</string>
+    <string name="changelog_3_0_0_alpha1_3">Certificate pinning, LAN server discovery, labels and per-file priorities</string>
+    <string name="changelog_3_0_0_alpha1_4">Connect through login portals like Cloudflare Access, and add torrents paused</string>
+    <string name="changelog_3_0_0_alpha1_5">Encrypted settings backup and restore</string>
+    <string name="changelog_3_0_0_alpha1_6">Clearer connection error messages and in-app connection help</string>
+
+</resources>

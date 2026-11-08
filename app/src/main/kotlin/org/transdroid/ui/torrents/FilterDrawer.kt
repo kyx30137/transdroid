@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -51,7 +52,6 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -69,7 +69,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import org.transdroid.R
 import org.transdroid.data.ServerProfile
 import org.transdroid.protocol.TorrentStatus
@@ -102,9 +101,8 @@ fun FilterDrawerContent(
                 stringResource(R.string.app_name).uppercase(),
                 style = MaterialTheme.typography.labelMedium,
                 fontWeight = FontWeight.Bold,
-                letterSpacing = 1.6.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(start = 24.dp),
+                modifier = Modifier.padding(start = 16.dp),
             )
             Spacer(Modifier.height(9.dp))
             ui.activeProfile?.let { activeProfile ->
@@ -199,14 +197,14 @@ private fun SectionTitle(text: String) {
         style = MaterialTheme.typography.labelLarge,
         fontWeight = FontWeight.SemiBold,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.padding(start = 28.dp, end = 28.dp, top = 16.dp, bottom = 6.dp),
+        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 4.dp),
     )
 }
 
 @Composable
 private fun DrawerDivider() {
     HorizontalDivider(
-        modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp),
+        modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
         color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
     )
 }
@@ -281,7 +279,8 @@ private fun ServerPill(
             .clip(RoundedCornerShape(20.dp))
             .background(MaterialTheme.colorScheme.surfaceContainer)
             .clickable(enabled = showChevron, onClick = onClick)
-            .padding(vertical = 9.dp, horizontal = 9.dp),
+            .heightIn(min = 72.dp)
+            .padding(vertical = 10.dp, horizontal = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(
@@ -317,7 +316,7 @@ private fun ServerPill(
                 }
                 Box(Modifier.size(7.dp).clip(RoundedCornerShape(50)).background(dotColor))
                 Spacer(Modifier.width(6.dp))
-                Text(text, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(text, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
         if (showChevron) {
@@ -336,7 +335,7 @@ private fun DrawerFilterField(value: String, onValueChange: (String) -> Unit, mo
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .height(50.dp)
+            .heightIn(min = 56.dp)
             .clip(RoundedCornerShape(50))
             .background(MaterialTheme.colorScheme.surfaceContainer)
             .padding(start = 16.dp, end = 8.dp),
@@ -353,7 +352,7 @@ private fun DrawerFilterField(value: String, onValueChange: (String) -> Unit, mo
             if (value.isEmpty()) {
                 Text(
                     stringResource(R.string.drawer_filter_hint),
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
@@ -361,10 +360,7 @@ private fun DrawerFilterField(value: String, onValueChange: (String) -> Unit, mo
                 value = value,
                 onValueChange = onValueChange,
                 singleLine = true,
-                textStyle = LocalTextStyle.current.copy(
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontSize = MaterialTheme.typography.bodyMedium.fontSize,
-                ),
+                textStyle = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurface),
                 cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                 modifier = Modifier.fillMaxWidth(),
             )
@@ -399,11 +395,11 @@ private fun DrawerItemRow(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 12.dp, vertical = 1.dp)
-            .height(50.dp)
+            .heightIn(min = 56.dp)
             .clip(RoundedCornerShape(50))
             .background(containerColor)
             .clickable(onClick = onClick)
-            .padding(horizontal = 18.dp),
+            .padding(horizontal = 16.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(Modifier.size(24.dp), contentAlignment = Alignment.Center) {
@@ -421,7 +417,7 @@ private fun DrawerItemRow(
         Spacer(Modifier.width(14.dp))
         Text(
             label,
-            style = MaterialTheme.typography.bodyMedium,
+            style = MaterialTheme.typography.bodyLarge,
             fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
             color = contentColor,
             maxLines = 1,

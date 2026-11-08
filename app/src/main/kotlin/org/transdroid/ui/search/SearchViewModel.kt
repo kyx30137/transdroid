@@ -183,7 +183,7 @@ class SearchViewModel(private val container: AppContainer) : ViewModel() {
                     adapter.addByUrl(result.torrentUrl, startPaused, downloadLocation)
                 }
                 if (!downloadLocation.isNullOrBlank()) {
-                    container.settingsRepository.addRecentDownloadLocation(profile.id, downloadLocation.trim())
+                    container.settingsRepository.addRecentDownloadLocation(profile.id, downloadLocation)
                 }
                 _ui.update { it.copy(addedTitle = result.title, addError = null) }
             } catch (e: CancellationException) {

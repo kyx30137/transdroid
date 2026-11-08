@@ -18,6 +18,7 @@ package org.transdroid.ui.settings
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -78,13 +79,17 @@ fun ChangelogScreen(onBack: () -> Unit) {
 
 @Composable
 private fun ReleaseSection(release: Release, isLatest: Boolean) {
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(top = 12.dp, bottom = 10.dp),
-        verticalAlignment = Alignment.CenterVertically,
+    FlowRow(
+        modifier = Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp),
         horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         Text(release.version, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-        Text(release.date, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(
+            stringResource(release.dateRes),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
         if (isLatest) {
             SettingsChip(stringResource(R.string.changelog_latest))
         }
@@ -99,7 +104,7 @@ private fun ChangeRow(entry: ChangelogEntry) {
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         ChangeTag(entry.kind)
-        Text(entry.text, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(top = 1.dp))
+        Text(stringResource(entry.textRes), style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(top = 1.dp))
     }
 }
 
@@ -124,7 +129,7 @@ private fun ChangeTag(kind: ChangeKind) {
     }
     Text(
         label,
-        style = MaterialTheme.typography.labelSmall,
+        style = MaterialTheme.typography.labelMedium,
         fontWeight = FontWeight.Bold,
         color = content,
         textAlign = TextAlign.Center,

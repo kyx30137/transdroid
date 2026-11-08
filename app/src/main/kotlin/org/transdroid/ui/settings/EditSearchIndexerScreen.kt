@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -53,8 +54,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.transdroid.R
 import org.transdroid.data.SearchProviderConfig
-import org.transdroid.ui.message
 import org.transdroid.ui.components.TransdroidTextField
+import org.transdroid.ui.message
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -124,7 +125,7 @@ fun EditSearchIndexerScreen(
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             TransdroidTextField(
                 value = name,
@@ -197,7 +198,7 @@ fun EditSearchIndexerScreen(
                 OutlinedButton(
                     onClick = { viewModel.testSearchProvider(buildProvider()) },
                     enabled = testState != SearchTestState.Testing && url.trim().startsWith("http"),
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(1f).heightIn(min = 48.dp),
                 ) {
                     Text(stringResource(R.string.settings_test))
                 }
@@ -207,7 +208,7 @@ fun EditSearchIndexerScreen(
                         onBack()
                     },
                     enabled = url.trim().startsWith("http"),
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(1f).heightIn(min = 48.dp),
                 ) {
                     Text(stringResource(R.string.settings_save))
                 }

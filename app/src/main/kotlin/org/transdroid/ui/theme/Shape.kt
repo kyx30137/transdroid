@@ -20,14 +20,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Shapes
 import androidx.compose.ui.unit.dp
 
-// "M3 Expressive" corner scale: noticeably rounder than stock M3 defaults, matching the
-// 12-34px radii observed across design/mockups/*.html (toolbars, cards, chips, the FAB).
-// Fully pill-shaped elements (server chip, stat pills, filled buttons) come from M3 component
-// defaults already and don't need a shape-scale entry here.
+// Corner scale of the qBittorrent remote controller design (v1.2): restrained, not "expressive".
+// Panels/sheets/cards use the design's single --radius token (14px); 11px is its inner-control
+// radius (icon buttons, server avatars) and 8px its smallest (dots, tag pills). List rows are
+// square by intention - they are a divider list, not a card stack - so nothing here is applied to
+// them. Fully pill-shaped elements (chips, filled buttons) still come from M3 component defaults.
 val TransdroidShapes = Shapes(
-    extraSmall = RoundedCornerShape(12.dp),
-    small = RoundedCornerShape(16.dp),
-    medium = RoundedCornerShape(20.dp),
-    large = RoundedCornerShape(26.dp),
-    extraLarge = RoundedCornerShape(32.dp),
+    extraSmall = RoundedCornerShape(8.dp),
+    small = RoundedCornerShape(11.dp),
+    medium = RoundedCornerShape(14.dp),
+    large = RoundedCornerShape(18.dp),
+    extraLarge = RoundedCornerShape(22.dp),
 )

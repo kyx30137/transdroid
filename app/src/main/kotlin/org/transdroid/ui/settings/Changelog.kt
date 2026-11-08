@@ -16,140 +16,147 @@
  */
 package org.transdroid.ui.settings
 
+import androidx.annotation.StringRes
+import org.transdroid.R
+
 enum class ChangeKind { NEW, IMPROVED, FIXED }
 
-data class ChangelogEntry(val kind: ChangeKind, val text: String)
+/** One bullet; its text lives in res/values/strings_changelog.xml so it can be translated. */
+data class ChangelogEntry(val kind: ChangeKind, @StringRes val textRes: Int)
 
-data class Release(val version: String, val date: String, val changes: List<ChangelogEntry>)
+data class Release(val version: String, @StringRes val dateRes: Int, val changes: List<ChangelogEntry>)
 
 /**
  * The in-app "What's new" history, newest release first - this is hand-maintained, there is no
  * generator. Add one [Release] here (with a handful of user-facing bullets, not every commit)
  * once a version is actually tagged and released, not while it's still in development; the
  * first item is shown with a "Latest" badge regardless of what BuildConfig.VERSION_NAME says.
+ *
+ * The bullets themselves are resource strings (see strings_changelog.xml), so a release needs
+ * its keys added to every translated values-* folder along with the entry here.
  */
 val CHANGELOG: List<Release> = listOf(
     Release(
         version = "3.0.0-beta4",
-        date = "November 2026",
+        dateRes = R.string.changelog_date_2026_11,
         changes = listOf(
-            ChangelogEntry(ChangeKind.NEW, "Long-press a torrent to select it, then start, pause, check, label, move or remove one or many at once; this replaces the swipe gestures"),
-            ChangelogEntry(ChangeKind.IMPROVED, "The \"No label\" filter is always available, also when every torrent has a label"),
-            ChangelogEntry(ChangeKind.IMPROVED, "When filters match no torrents, the list says so and offers to clear them all"),
-            ChangelogEntry(ChangeKind.FIXED, "The set label and location sheets opened half-way, hiding their buttons"),
+            ChangelogEntry(ChangeKind.NEW, R.string.changelog_3_0_0_beta4_1),
+            ChangelogEntry(ChangeKind.IMPROVED, R.string.changelog_3_0_0_beta4_2),
+            ChangelogEntry(ChangeKind.IMPROVED, R.string.changelog_3_0_0_beta4_3),
+            ChangelogEntry(ChangeKind.FIXED, R.string.changelog_3_0_0_beta4_4),
         ),
     ),
     Release(
         version = "3.0.0-beta3",
-        date = "November 2026",
+        dateRes = R.string.changelog_date_2026_11,
         changes = listOf(
-            ChangelogEntry(ChangeKind.NEW, "A torrent's label shows as a coloured pill in the list and on the details screen"),
-            ChangelogEntry(ChangeKind.IMPROVED, "The filter menu closes after switching server from it"),
-            ChangelogEntry(ChangeKind.IMPROVED, "Swiping a torrent to start/pause or remove it slides the row back smoothly"),
-            ChangelogEntry(ChangeKind.IMPROVED, "Updated to the latest Android libraries"),
+            ChangelogEntry(ChangeKind.NEW, R.string.changelog_3_0_0_beta3_1),
+            ChangelogEntry(ChangeKind.IMPROVED, R.string.changelog_3_0_0_beta3_2),
+            ChangelogEntry(ChangeKind.IMPROVED, R.string.changelog_3_0_0_beta3_3),
+            ChangelogEntry(ChangeKind.IMPROVED, R.string.changelog_3_0_0_beta3_4),
         ),
     ),
     Release(
         version = "3.0.0-beta2",
-        date = "November 2026",
+        dateRes = R.string.changelog_date_2026_11,
         changes = listOf(
-            ChangelogEntry(ChangeKind.NEW, "Your status, label and tracker filters are remembered per server, also after restarting the app"),
-            ChangelogEntry(ChangeKind.NEW, "Builds from transdroid.org and GitHub check daily for a new version, which can be turned off in Settings"),
-            ChangelogEntry(ChangeKind.IMPROVED, "Notifications and themed launcher icons show the Transdroid badge"),
+            ChangelogEntry(ChangeKind.NEW, R.string.changelog_3_0_0_beta2_1),
+            ChangelogEntry(ChangeKind.NEW, R.string.changelog_3_0_0_beta2_2),
+            ChangelogEntry(ChangeKind.IMPROVED, R.string.changelog_3_0_0_beta2_3),
         ),
     ),
     Release(
         version = "3.0.0-beta1",
-        date = "October 2026",
+        dateRes = R.string.changelog_date_2026_10,
         changes = listOf(
-            ChangelogEntry(ChangeKind.NEW, "Upgrading from Transdroid 2 brings your servers and RSS feeds along"),
-            ChangelogEntry(ChangeKind.NEW, "Import a Transdroid 2 settings export from Settings > Backup"),
-            ChangelogEntry(ChangeKind.NEW, "New widget settings: pick each widget's server, sort order and whether to show inactive torrents"),
-            ChangelogEntry(ChangeKind.NEW, "Use local server settings on several Wi-Fi networks"),
-            ChangelogEntry(ChangeKind.IMPROVED, "Torrent list and details are drawn edge to edge, with the Add button clear of the navigation bar"),
-            ChangelogEntry(ChangeKind.FIXED, "A widget always showed the first server instead of the one picked for it"),
-            ChangelogEntry(ChangeKind.FIXED, "The last torrent in the list sat under the Add button"),
+            ChangelogEntry(ChangeKind.NEW, R.string.changelog_3_0_0_beta1_1),
+            ChangelogEntry(ChangeKind.NEW, R.string.changelog_3_0_0_beta1_2),
+            ChangelogEntry(ChangeKind.NEW, R.string.changelog_3_0_0_beta1_3),
+            ChangelogEntry(ChangeKind.NEW, R.string.changelog_3_0_0_beta1_4),
+            ChangelogEntry(ChangeKind.IMPROVED, R.string.changelog_3_0_0_beta1_5),
+            ChangelogEntry(ChangeKind.FIXED, R.string.changelog_3_0_0_beta1_6),
+            ChangelogEntry(ChangeKind.FIXED, R.string.changelog_3_0_0_beta1_7),
         ),
     ),
     Release(
         version = "3.0.0-alpha6",
-        date = "September 2026",
+        dateRes = R.string.changelog_date_2026_09,
         changes = listOf(
-            ChangelogEntry(ChangeKind.NEW, "Swipe a torrent right to start/pause it, left to remove it"),
-            ChangelogEntry(ChangeKind.NEW, "Play/pause buttons on the home screen widget"),
-            ChangelogEntry(ChangeKind.IMPROVED, "Transmission accepts its web interface URL"),
-            ChangelogEntry(ChangeKind.IMPROVED, "Clearer errors when a server refuses to connect"),
-            ChangelogEntry(ChangeKind.IMPROVED, "Lighter refreshes with thousands of torrents"),
-            ChangelogEntry(ChangeKind.FIXED, "qBittorrent 5.2 username/password login"),
-            ChangelogEntry(ChangeKind.FIXED, "Custom headers (e.g. Cloudflare Access) breaking logins"),
-            ChangelogEntry(ChangeKind.FIXED, "Deluge reconnects after a daemon restart"),
-            ChangelogEntry(ChangeKind.FIXED, "Several rTorrent, Transmission, IPv6 and RSS issues"),
+            ChangelogEntry(ChangeKind.NEW, R.string.changelog_3_0_0_alpha6_1),
+            ChangelogEntry(ChangeKind.NEW, R.string.changelog_3_0_0_alpha6_2),
+            ChangelogEntry(ChangeKind.IMPROVED, R.string.changelog_3_0_0_alpha6_3),
+            ChangelogEntry(ChangeKind.IMPROVED, R.string.changelog_3_0_0_alpha6_4),
+            ChangelogEntry(ChangeKind.IMPROVED, R.string.changelog_3_0_0_alpha6_5),
+            ChangelogEntry(ChangeKind.FIXED, R.string.changelog_3_0_0_alpha6_6),
+            ChangelogEntry(ChangeKind.FIXED, R.string.changelog_3_0_0_alpha6_7),
+            ChangelogEntry(ChangeKind.FIXED, R.string.changelog_3_0_0_alpha6_8),
+            ChangelogEntry(ChangeKind.FIXED, R.string.changelog_3_0_0_alpha6_9),
         ),
     ),
     Release(
         version = "3.0.0-alpha5",
-        date = "September 2026",
+        dateRes = R.string.changelog_date_2026_09,
         changes = listOf(
-            ChangelogEntry(ChangeKind.NEW, "Sort the Peers tab by speed, IP address or client"),
-            ChangelogEntry(ChangeKind.NEW, "Optional on-device country database shows a flag for every peer, even on clients that don't report it themselves"),
-            ChangelogEntry(ChangeKind.NEW, "Connect to qBittorrent 5.2+ using its Web UI API key instead of a username/password"),
-            ChangelogEntry(ChangeKind.IMPROVED, "Swipe between the details screen's Overview/Files/Trackers/Peers tabs"),
-            ChangelogEntry(ChangeKind.IMPROVED, "Torrent list sort order is remembered across app restarts, and changing it scrolls back to the top"),
+            ChangelogEntry(ChangeKind.NEW, R.string.changelog_3_0_0_alpha5_1),
+            ChangelogEntry(ChangeKind.NEW, R.string.changelog_3_0_0_alpha5_2),
+            ChangelogEntry(ChangeKind.NEW, R.string.changelog_3_0_0_alpha5_3),
+            ChangelogEntry(ChangeKind.IMPROVED, R.string.changelog_3_0_0_alpha5_4),
+            ChangelogEntry(ChangeKind.IMPROVED, R.string.changelog_3_0_0_alpha5_5),
         ),
     ),
     Release(
         version = "3.0.0-alpha4",
-        date = "September 2026",
+        dateRes = R.string.changelog_date_2026_09,
         changes = listOf(
-            ChangelogEntry(ChangeKind.NEW, "Peers tab on the details screen: client, country, progress and speed for connected peers"),
-            ChangelogEntry(ChangeKind.FIXED, "Adding a torrent from search could silently fail when the indexer needs its own login (e.g. a seedbox member area), separate from its API key"),
-            ChangelogEntry(ChangeKind.FIXED, "A torrent shown as \"Error\" but actually stopped now offers Start instead of only Pause"),
+            ChangelogEntry(ChangeKind.NEW, R.string.changelog_3_0_0_alpha4_1),
+            ChangelogEntry(ChangeKind.FIXED, R.string.changelog_3_0_0_alpha4_2),
+            ChangelogEntry(ChangeKind.FIXED, R.string.changelog_3_0_0_alpha4_3),
         ),
     ),
     Release(
         version = "3.0.0-alpha3",
-        date = "September 2026",
+        dateRes = R.string.changelog_date_2026_09,
         changes = listOf(
-            ChangelogEntry(ChangeKind.NEW, "Filter the torrent list by tracker"),
-            ChangelogEntry(ChangeKind.NEW, "Set a download location when adding a torrent, including from Search and RSS"),
-            ChangelogEntry(ChangeKind.NEW, "Redesigned Add torrent screen"),
-            ChangelogEntry(ChangeKind.NEW, "Home screen widget shows a scrollable list of running torrents; each widget instance can pick its own server"),
-            ChangelogEntry(ChangeKind.NEW, "Connect using different settings while on a chosen Wi-Fi network, e.g. a seedbox also reachable directly over the LAN"),
-            ChangelogEntry(ChangeKind.IMPROVED, "Details screen action icons use a consistent accent color"),
-            ChangelogEntry(ChangeKind.IMPROVED, "Location and label text wraps instead of truncating on the details Overview tab"),
-            ChangelogEntry(ChangeKind.IMPROVED, "Clearer Edit Server screen: leading icons, a password-reveal toggle, and better connection help wording"),
-            ChangelogEntry(ChangeKind.IMPROVED, "Widget uses the real app icon instead of a generic badge"),
-            ChangelogEntry(ChangeKind.FIXED, "Widget icon rendering too small"),
-            ChangelogEntry(ChangeKind.FIXED, "Tablet details placeholder styling and top bar status bar inset"),
+            ChangelogEntry(ChangeKind.NEW, R.string.changelog_3_0_0_alpha3_1),
+            ChangelogEntry(ChangeKind.NEW, R.string.changelog_3_0_0_alpha3_2),
+            ChangelogEntry(ChangeKind.NEW, R.string.changelog_3_0_0_alpha3_3),
+            ChangelogEntry(ChangeKind.NEW, R.string.changelog_3_0_0_alpha3_4),
+            ChangelogEntry(ChangeKind.NEW, R.string.changelog_3_0_0_alpha3_5),
+            ChangelogEntry(ChangeKind.IMPROVED, R.string.changelog_3_0_0_alpha3_6),
+            ChangelogEntry(ChangeKind.IMPROVED, R.string.changelog_3_0_0_alpha3_7),
+            ChangelogEntry(ChangeKind.IMPROVED, R.string.changelog_3_0_0_alpha3_8),
+            ChangelogEntry(ChangeKind.IMPROVED, R.string.changelog_3_0_0_alpha3_9),
+            ChangelogEntry(ChangeKind.FIXED, R.string.changelog_3_0_0_alpha3_10),
+            ChangelogEntry(ChangeKind.FIXED, R.string.changelog_3_0_0_alpha3_11),
         ),
     ),
     Release(
         version = "3.0.0-alpha2",
-        date = "September 2026",
+        dateRes = R.string.changelog_date_2026_09,
         changes = listOf(
-            ChangelogEntry(ChangeKind.NEW, "About screen with license, project links and a changelog, plus a donate link"),
-            ChangelogEntry(ChangeKind.NEW, "Set a torrent's label, or create a new one, from its details screen"),
-            ChangelogEntry(ChangeKind.NEW, "Verify data (force recheck) from the torrent details screen"),
-            ChangelogEntry(ChangeKind.NEW, "Alternative (\"turtle\") speed limits toggle for qBittorrent and Transmission"),
-            ChangelogEntry(ChangeKind.NEW, "Switch servers directly from the torrents list, and a redesigned app icon"),
-            ChangelogEntry(ChangeKind.NEW, "\"Send error report\" to get support or report a bug, modernized from Transdroid 2"),
-            ChangelogEntry(ChangeKind.IMPROVED, "Predictive back gesture now animates correctly"),
-            ChangelogEntry(ChangeKind.IMPROVED, "Redesigned empty states across the torrents list, RSS and search"),
-            ChangelogEntry(ChangeKind.IMPROVED, "Torrent details refresh immediately after pausing or starting"),
-            ChangelogEntry(ChangeKind.FIXED, "Deluge servers failed to load torrents with an \"Unknown method\" error"),
-            ChangelogEntry(ChangeKind.FIXED, "qBittorrent could get itself banned by retrying a failed login every poll"),
+            ChangelogEntry(ChangeKind.NEW, R.string.changelog_3_0_0_alpha2_1),
+            ChangelogEntry(ChangeKind.NEW, R.string.changelog_3_0_0_alpha2_2),
+            ChangelogEntry(ChangeKind.NEW, R.string.changelog_3_0_0_alpha2_3),
+            ChangelogEntry(ChangeKind.NEW, R.string.changelog_3_0_0_alpha2_4),
+            ChangelogEntry(ChangeKind.NEW, R.string.changelog_3_0_0_alpha2_5),
+            ChangelogEntry(ChangeKind.NEW, R.string.changelog_3_0_0_alpha2_6),
+            ChangelogEntry(ChangeKind.IMPROVED, R.string.changelog_3_0_0_alpha2_7),
+            ChangelogEntry(ChangeKind.IMPROVED, R.string.changelog_3_0_0_alpha2_8),
+            ChangelogEntry(ChangeKind.IMPROVED, R.string.changelog_3_0_0_alpha2_9),
+            ChangelogEntry(ChangeKind.FIXED, R.string.changelog_3_0_0_alpha2_10),
+            ChangelogEntry(ChangeKind.FIXED, R.string.changelog_3_0_0_alpha2_11),
         ),
     ),
     Release(
         version = "3.0.0-alpha1",
-        date = "September 2026",
+        dateRes = R.string.changelog_date_2026_09,
         changes = listOf(
-            ChangelogEntry(ChangeKind.NEW, "Complete rebuild in Kotlin and Jetpack Compose"),
-            ChangelogEntry(ChangeKind.NEW, "RSS feeds, Torznab search, finished-torrent notifications and a home screen widget"),
-            ChangelogEntry(ChangeKind.NEW, "Certificate pinning, LAN server discovery, labels and per-file priorities"),
-            ChangelogEntry(ChangeKind.NEW, "Connect through login portals like Cloudflare Access, and add torrents paused"),
-            ChangelogEntry(ChangeKind.NEW, "Encrypted settings backup and restore"),
-            ChangelogEntry(ChangeKind.IMPROVED, "Clearer connection error messages and in-app connection help"),
+            ChangelogEntry(ChangeKind.NEW, R.string.changelog_3_0_0_alpha1_1),
+            ChangelogEntry(ChangeKind.NEW, R.string.changelog_3_0_0_alpha1_2),
+            ChangelogEntry(ChangeKind.NEW, R.string.changelog_3_0_0_alpha1_3),
+            ChangelogEntry(ChangeKind.NEW, R.string.changelog_3_0_0_alpha1_4),
+            ChangelogEntry(ChangeKind.NEW, R.string.changelog_3_0_0_alpha1_5),
+            ChangelogEntry(ChangeKind.IMPROVED, R.string.changelog_3_0_0_alpha1_6),
         ),
     ),
 )

@@ -39,6 +39,9 @@ import kotlinx.coroutines.launch
 import org.transdroid.AppContainer
 import org.transdroid.appContainer
 import org.transdroid.data.PeerSort
+import org.transdroid.data.DownloadPaths
+import org.transdroid.data.PathAliasError
+import org.transdroid.protocol.DownloadLocationInfo
 import org.transdroid.data.ServerProfile
 import org.transdroid.errorlog.ErrorLog
 import org.transdroid.protocol.DaemonException
@@ -169,6 +172,9 @@ data class TorrentsUiState(
     val altSpeedEnabled: Boolean = false,
     /** Download locations previously used on the active server, most-recent first; see [org.transdroid.data.SettingsRepository.recentDownloadLocations]. */
     val recentDownloadLocations: List<String> = emptyList(),
+    val downloadLocationInfo: DownloadLocationInfo = DownloadLocationInfo(),
+    val pathsLoading: Boolean = false,
+    val pathAliases: Map<String, String> = emptyMap(),
 ) {
     val availableLabels: List<String>
         get() = torrents.flatMap { it.labels }.distinct().sorted()
@@ -263,6 +269,8 @@ class TorrentsViewModel(private val container: AppContainer) : ViewModel() {
                 // Restore the filters last used on this server, on a cold start or a server switch
                 val restored = profile?.takeIf { it.id != _ui.value.activeProfile?.id }
                     ?.let { container.settingsRepository.torrentFilters(it.id).first() }
+                val aliases = profile?.let { container.settingsRepository.downloadPathAliases(it.id).first() }.orEmpty()
+                val recent = profile?.let { container.settingsRepository.recentDownloadLocations(it.id).first() }.orEmpty()
                 _ui.update { state ->
                     val switched = profile?.id != state.activeProfile?.id
                     state.copy(
@@ -270,6 +278,10 @@ class TorrentsViewModel(private val container: AppContainer) : ViewModel() {
                         labelFilters = restored?.labels ?: state.labelFilters,
                         trackerFilters = restored?.trackers ?: state.trackerFilters,
                         activeProfile = profile,
+                        pathAliases = aliases,
+                        recentDownloadLocations = recent,
+                        downloadLocationInfo = if (switched) DownloadLocationInfo() else state.downloadLocationInfo,
+                        pathsLoading = if (switched) false else state.pathsLoading,
                         allProfiles = all,
                         profilesLoaded = true,
                         profileCount = all.size,
@@ -282,13 +294,22 @@ class TorrentsViewModel(private val container: AppContainer) : ViewModel() {
                         selection = if (switched) emptySet() else state.selection,
                     )
                 }
-                if (profile != null) refresh(showSpinner = false)
+                if (profile != null) {
+                    refresh(showSpinner = false)
+                    refreshDownloadLocations()
+                }
             }
         }
         viewModelScope.launch {
             container.activeProfile.flatMapLatest { profile ->
-                profile?.let { container.settingsRepository.recentDownloadLocations(it.id) } ?: flowOf(emptyList())
-            }.collect { locations -> _ui.update { it.copy(recentDownloadLocations = locations) } }
+                if (profile == null) flowOf(Triple<String?, List<String>, Map<String, String>>(null, emptyList(), emptyMap()))
+                else combine(
+                    container.settingsRepository.recentDownloadLocations(profile.id),
+                    container.settingsRepository.downloadPathAliases(profile.id),
+                ) { recent, aliases -> Triple(profile.id, recent, aliases) }
+            }.collect { (id, recent, aliases) ->
+                _ui.update { if (it.activeProfile?.id == id) it.copy(recentDownloadLocations = recent, pathAliases = aliases) else it }
+            }
         }
         viewModelScope.launch {
             container.settingsRepository.peerSort.collect { sort -> _ui.update { it.copy(peerSort = sort) } }
@@ -302,6 +323,27 @@ class TorrentsViewModel(private val container: AppContainer) : ViewModel() {
                 container.settingsRepository.torrentSortDescending,
             ) { sort, descending -> sort to descending }
                 .collect { (sort, descending) -> _ui.update { it.copy(sort = sort, sortDescending = descending) } }
+        }
+    }
+
+    fun refreshDownloadLocations() {
+        val profile = _ui.value.activeProfile ?: return
+        viewModelScope.launch {
+            _ui.update { if (it.activeProfile == profile) it.copy(pathsLoading = true) else it }
+            val info = try {
+                container.adapterFor(profile).downloadLocationInfo()
+            } catch (e: CancellationException) { throw e }
+            catch (_: Exception) { DownloadLocationInfo() }
+            _ui.update { if (it.activeProfile == profile) it.copy(downloadLocationInfo = info, pathsLoading = false) else it }
+        }
+    }
+
+    fun savePathAlias(profileId: String, path: String, name: String, onResult: (PathAliasError?) -> Unit) {
+        viewModelScope.launch {
+            val result = try { container.settingsRepository.setDownloadPathAlias(profileId, path, name) }
+            catch (e: CancellationException) { throw e }
+            catch (_: Exception) { PathAliasError.STORAGE }
+            onResult(result)
         }
     }
 
@@ -688,7 +730,7 @@ class TorrentsViewModel(private val container: AppContainer) : ViewModel() {
 
     private suspend fun rememberDownloadLocation(profileId: String, downloadLocation: String?) {
         if (!downloadLocation.isNullOrBlank()) {
-            container.settingsRepository.addRecentDownloadLocation(profileId, downloadLocation.trim())
+            container.settingsRepository.addRecentDownloadLocation(profileId, downloadLocation)
         }
     }
 

@@ -24,6 +24,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -84,6 +88,7 @@ fun SetLocationSheet(
     val trimmedLocation = location.trim()
 
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
+        Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).imePadding()) {
         // Matches the mockup's .sheet-head: its own horizontal inset (22dp), distinct from the
         // field below (16dp) - the field is deliberately a touch wider than the title/subtitle.
         Column(Modifier.padding(horizontal = 22.dp)) {
@@ -160,6 +165,7 @@ fun SetLocationSheet(
                 Text(stringResource(R.string.details_set_location_save))
             }
         }
+        }
     }
 }
 
@@ -169,7 +175,7 @@ private fun LocationField(value: String, onValueChange: (String) -> Unit, modifi
     Row(
         modifier
             .fillMaxWidth()
-            .height(52.dp)
+            .heightIn(min = 56.dp)
             .clip(RoundedCornerShape(26.dp))
             .background(MaterialTheme.colorScheme.surfaceContainer)
             .padding(horizontal = 16.dp),
@@ -188,8 +194,8 @@ private fun LocationField(value: String, onValueChange: (String) -> Unit, modifi
             BasicTextField(
                 value = value,
                 onValueChange = onValueChange,
-                singleLine = true,
-                textStyle = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurface),
+                maxLines = 4,
+                textStyle = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurface),
                 cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                 modifier = Modifier.fillMaxWidth(),
             )

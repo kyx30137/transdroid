@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -68,9 +69,9 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.InputChip
 import androidx.compose.material3.InputChipDefaults
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
@@ -93,10 +94,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -110,9 +111,9 @@ import org.transdroid.discovery.CurrentSsid
 import org.transdroid.errorlog.ErrorLog
 import org.transdroid.protocol.DaemonType
 import org.transdroid.protocol.discovery.DiscoveredDaemon
+import org.transdroid.ui.components.TransdroidTextField
 import org.transdroid.ui.message
 import org.transdroid.ui.torrents.UiError
-import org.transdroid.ui.components.TransdroidTextField
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -195,7 +196,7 @@ fun EditServerScreen(
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             if (serverId == null && (discovery.scanning || discovery.found.isNotEmpty())) {
                 DiscoverySection(state = discovery, onPick = form::applyDiscovered)
@@ -215,14 +216,20 @@ fun EditServerScreen(
                 )
             }
             ConnectionSection(form)
-            CredentialsSection(form)
-            LocalNetworkFormSection(form)
-            TestAndSaveSection(
-                form = form,
-                viewModel = viewModel,
-                profileId = { serverId ?: viewModel.newProfileId() },
-                onSaved = onBack,
-            )
+            Column(Modifier.padding(top = 8.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                CredentialsSection(form)
+            }
+            Column(Modifier.padding(top = 8.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                LocalNetworkFormSection(form)
+            }
+            Column(Modifier.padding(top = 8.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                TestAndSaveSection(
+                    form = form,
+                    viewModel = viewModel,
+                    profileId = { serverId ?: viewModel.newProfileId() },
+                    onSaved = onBack,
+                )
+            }
         }
     }
 }
@@ -241,7 +248,7 @@ private fun ConnectionHelpDialog(onDismiss: () -> Unit) {
             }
         },
         confirmButton = {
-            TextButton(onClick = onDismiss) { Text(stringResource(R.string.settings_help_close)) }
+            TextButton(modifier = Modifier.heightIn(min = 48.dp), onClick = onDismiss) { Text(stringResource(R.string.settings_help_close)) }
         },
     )
 }
@@ -312,7 +319,7 @@ private fun ConnectionSection(form: EditServerFormState) {
         )
         if (!form.overridden) {
             DetectedSettingsPanel(secure = form.useSsl, host = form.host, port = form.port, path = form.path)
-            TextButton(onClick = { form.toggleOverride(true) }) {
+            TextButton(modifier = Modifier.heightIn(min = 48.dp), onClick = { form.toggleOverride(true) }) {
                 Text(stringResource(R.string.settings_override_parts))
                 Spacer(Modifier.width(2.dp))
                 Icon(
@@ -530,9 +537,9 @@ private fun TestAndSaveSection(
                 ),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f).heightIn(min = 48.dp),
             )
-            TextButton(onClick = { form.pinnedCert = "" }) {
+            TextButton(modifier = Modifier.heightIn(min = 48.dp), onClick = { form.pinnedCert = "" }) {
                 Text(stringResource(R.string.settings_cert_forget))
             }
         }
@@ -561,6 +568,7 @@ private fun TestAndSaveSection(
             if (state.error == UiError.Ssl && form.useSsl) {
                 Spacer(Modifier.height(4.dp))
                 OutlinedButton(
+                    modifier = Modifier.heightIn(min = 48.dp),
                     onClick = {
                         if (form.validate()) {
                             viewModel.fetchCertificate(form.host.trim(), form.port.toIntOrNull() ?: form.type.defaultSslPort)
@@ -602,14 +610,14 @@ private fun TestAndSaveSection(
                 }
             },
             confirmButton = {
-                TextButton(onClick = {
+                TextButton(modifier = Modifier.heightIn(min = 48.dp), onClick = {
                     form.pinnedCert = certState.fingerprint.sha256
                     viewModel.dismissCertificate()
                     viewModel.testConnection(form.toProfile(profileId()))
                 }) { Text(stringResource(R.string.settings_trust_cert_confirm)) }
             },
             dismissButton = {
-                TextButton(onClick = { viewModel.dismissCertificate() }) {
+                TextButton(modifier = Modifier.heightIn(min = 48.dp), onClick = { viewModel.dismissCertificate() }) {
                     Text(stringResource(R.string.details_cancel))
                 }
             },
@@ -621,7 +629,7 @@ private fun TestAndSaveSection(
         OutlinedButton(
             onClick = { if (form.validate()) viewModel.testConnection(form.toProfile(profileId())) },
             enabled = testState != TestState.Testing,
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.weight(1f).heightIn(min = 48.dp),
         ) {
             Text(stringResource(R.string.settings_test))
         }
@@ -632,7 +640,7 @@ private fun TestAndSaveSection(
                     onSaved()
                 }
             },
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.weight(1f).heightIn(min = 48.dp),
         ) {
             Text(stringResource(R.string.settings_save))
         }
@@ -874,9 +882,9 @@ private fun LocalNetworkSection(
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                 keyboardActions = KeyboardActions(onDone = { onAddSsid() }),
                 singleLine = true,
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f).heightIn(min = 48.dp),
             )
-            TextButton(onClick = onUseCurrentSsid) {
+            TextButton(modifier = Modifier.heightIn(min = 48.dp), onClick = onUseCurrentSsid) {
                 Text(stringResource(R.string.settings_local_use_current))
             }
         }
@@ -987,7 +995,7 @@ private fun XirvikSetupSection(
             if (!expanded) {
                 Text(stringResource(R.string.settings_xirvik_summary), style = MaterialTheme.typography.bodyMedium)
                 Spacer(Modifier.height(8.dp))
-                OutlinedButton(onClick = { onExpandedChange(true) }) {
+                OutlinedButton(modifier = Modifier.heightIn(min = 48.dp), onClick = { onExpandedChange(true) }) {
                     Text(stringResource(R.string.settings_xirvik_action))
                 }
             } else {
@@ -1029,6 +1037,7 @@ private fun XirvikSetupSection(
                 Spacer(Modifier.height(8.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Button(
+                        modifier = Modifier.heightIn(min = 48.dp),
                         onClick = onDetect,
                         enabled = state != XirvikState.Detecting &&
                             server.isNotBlank() && username.isNotBlank() && password.isNotBlank(),

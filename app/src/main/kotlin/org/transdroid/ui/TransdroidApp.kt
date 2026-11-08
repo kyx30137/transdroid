@@ -20,6 +20,9 @@ import android.net.Uri
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.scaleOut
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import org.transdroid.ui.components.LocalDownloadPaths
+import org.transdroid.ui.components.DownloadPathOptions
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.TransformOrigin
@@ -115,6 +118,20 @@ fun TransdroidApp(
         LegacyImportDialog(summary = summary, onDismiss = settingsViewModel::dismissLegacyImportSummary)
     }
 
+    val torrentUi by torrentsViewModel.ui.collectAsStateWithLifecycle()
+    val pathOptions = DownloadPathOptions(
+        profileId = torrentUi.activeProfile?.id,
+        info = torrentUi.downloadLocationInfo,
+        knownPaths = torrentUi.torrents.mapNotNull { it.downloadDir }.distinct(),
+        recentPaths = torrentUi.recentDownloadLocations,
+        aliases = torrentUi.pathAliases,
+        loading = torrentUi.pathsLoading,
+        refresh = torrentsViewModel::refreshDownloadLocations,
+        saveAlias = { path, name, result ->
+            torrentUi.activeProfile?.id?.let { torrentsViewModel.savePathAlias(it, path, name, result) }
+        },
+    )
+    CompositionLocalProvider(LocalDownloadPaths provides pathOptions) {
     NavHost(
         navController = navController,
         startDestination = Routes.TORRENTS,
@@ -218,5 +235,6 @@ fun TransdroidApp(
                 onBack = { navController.popBackStack() },
             )
         }
+    }
     }
 }

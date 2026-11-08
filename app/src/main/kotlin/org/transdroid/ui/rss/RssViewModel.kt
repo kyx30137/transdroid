@@ -189,7 +189,7 @@ class RssViewModel(private val container: AppContainer) : ViewModel() {
             try {
                 container.adapterFor(profile).addByUrl(url, startPaused, downloadLocation)
                 if (!downloadLocation.isNullOrBlank()) {
-                    container.settingsRepository.addRecentDownloadLocation(profile.id, downloadLocation.trim())
+                    container.settingsRepository.addRecentDownloadLocation(profile.id, downloadLocation)
                 }
                 _ui.update {
                     it.copy(addedKeys = it.addedKeys + entry.key, addedItemTitle = entry.item.title, addError = null)

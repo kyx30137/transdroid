@@ -22,52 +22,56 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
 import org.transdroid.protocol.TorrentStatus
 
-// M3 Expressive palette: warm off-white/green-tinted surfaces with a deep olive-green primary,
-// a direct evolution of the classic Transdroid grey-green identity. Values match
-// design/mockups/transdroid-m3-expressive.html and -dark.html, the source-of-truth visual reference.
+// Palette of the qBittorrent remote controller design (v1.2): near-black neutral surfaces with a
+// single blue accent, plus one hue per torrent state. Values are the design's own custom
+// properties (index.html: --bg / --surface / --line / --text / --dim / --accent / --green /
+// --yellow / --red), so the Compose theme and the HTML prototype cannot drift apart.
+//
+// The design is dark-first; the light variant is its html[data-theme="light"] block, where the
+// accent is deliberately darkened (#1F6FE0) to keep contrast against white surfaces.
 
-private val LightPrimary = Color(0xFF3F6A1E)
+private val LightPrimary = Color(0xFF1F6FE0)
 private val LightOnPrimary = Color(0xFFFFFFFF)
-private val LightPrimaryContainer = Color(0xFFC0F39A)
-private val LightOnPrimaryContainer = Color(0xFF0B2100)
-private val LightSurface = Color(0xFFF8FAF0)
-private val LightSurfaceContainerLow = Color(0xFFF2F5EA)
-private val LightSurfaceContainer = Color(0xFFECEEE2)
-private val LightSurfaceContainerHigh = Color(0xFFE6E9DD)
-private val LightSurfaceContainerHighest = Color(0xFFE0E3D7)
-private val LightOnSurface = Color(0xFF1A1C15)
-private val LightOnSurfaceVariant = Color(0xFF44483B)
-private val LightOutline = Color(0xFF75796A)
-private val LightOutlineVariant = Color(0xFFC5C8B8)
+private val LightPrimaryContainer = Color(0xFFD8E6FB)
+private val LightOnPrimaryContainer = Color(0xFF0A2A57)
+private val LightSurface = Color(0xFFFFFFFF)
+private val LightBackground = Color(0xFFEEF1F6)
+private val LightSurfaceContainerLowest = Color(0xFFFFFFFF)
+private val LightSurfaceContainerLow = Color(0xFFF4F6FA)
+private val LightSurfaceContainer = Color(0xFFFFFFFF)
+private val LightSurfaceContainerHigh = Color(0xFFF4F6FA)
+private val LightSurfaceContainerHighest = Color(0xFFE9EDF4)
+private val LightOnSurface = Color(0xFF10151C)
+private val LightOnSurfaceVariant = Color(0xFF5D6A7A)
+private val LightOutline = Color(0xFF8B96A5)
+private val LightOutlineVariant = Color(0xFFDFE4EC)
 
-private val DarkPrimary = Color(0xFFA6D67E)
-private val DarkOnPrimary = Color(0xFF133800)
-private val DarkPrimaryContainer = Color(0xFF284F10)
-private val DarkOnPrimaryContainer = Color(0xFFC1F39B)
-private val DarkSurface = Color(0xFF12140E)
-private val DarkSurfaceContainerLow = Color(0xFF191B14)
-private val DarkSurfaceContainer = Color(0xFF1E201A)
-private val DarkSurfaceContainerHigh = Color(0xFF282B23)
-private val DarkSurfaceContainerHighest = Color(0xFF33362D)
-private val DarkOnSurface = Color(0xFFE3E4D9)
-private val DarkOnSurfaceVariant = Color(0xFFC6C9B9)
-private val DarkOutline = Color(0xFF8E9284)
-private val DarkOutlineVariant = Color(0xFF43473B)
+private val DarkPrimary = Color(0xFF4F9CF9)
+private val DarkOnPrimary = Color(0xFFFFFFFF)
+private val DarkPrimaryContainer = Color(0xFF12335C)
+private val DarkOnPrimaryContainer = Color(0xFFD6E6FF)
+private val DarkSurface = Color(0xFF07090C)
+private val DarkSurfaceContainerLowest = Color(0xFF07090C)
+private val DarkSurfaceContainerLow = Color(0xFF0E1116)
+private val DarkSurfaceContainer = Color(0xFF0E1116)
+private val DarkSurfaceContainerHigh = Color(0xFF151A21)
+private val DarkSurfaceContainerHighest = Color(0xFF1B222B)
+private val DarkOnSurface = Color(0xFFE8ECF3)
+private val DarkOnSurfaceVariant = Color(0xFF98A3B3)
+private val DarkOutline = Color(0xFF6D7A8C)
+private val DarkOutlineVariant = Color(0xFF232A34)
 
-// Not specified by the mockups (no secondary/tertiary/error swatches shown) - kept close to the
-// previous grey-green theme's values rather than invented from scratch.
-private val LegacyTertiary = Color(0xFF7DBB21)
-private val LegacyError = Color(0xFFC62828)
-private val LegacyErrorDark = Color(0xFFEF9A9A)
+// Error is a state hue in this design (#F97066) rather than material's role colour, so it doubles
+// as ColorScheme.error; the on-colours are dark mixes of the same red rather than plain black.
+private val LightError = Color(0xFFD64545)
+private val DarkError = Color(0xFFF97066)
 
-// Selection pill in the filter drawer (design/mockups/transdroid-m3-filter-drawer.html: --sel-bg /
-// --sel-fg) - a softer, more desaturated green than primaryContainer, mapped onto the otherwise
-// unused tertiary-container role. No dark mockup exists for the drawer; the dark pair is derived
-// following the same lighten/desaturate relationship the other dark tokens use.
-private val LightSelectedContainer = Color(0xFFD8E8C9)
-private val LightOnSelectedContainer = Color(0xFF2B3B1C)
-private val DarkSelectedContainer = Color(0xFF3A4A2C)
-private val DarkOnSelectedContainer = Color(0xFFD7E4C4)
+// The design has exactly one accent, so the "selected chip" role is its 14% wash over the surface:
+// rgba(79,156,249,.14) over #07090C / rgba(31,111,224,.10) over white.
+private val LightSelectedContainer = Color(0xFFE4EDFB)
+private val LightOnSelectedContainer = Color(0xFF17427F)
+private val DarkSelectedContainer = Color(0xFF142334)
+private val DarkOnSelectedContainer = Color(0xFFA8CBFA)
 
 val LightColorScheme: ColorScheme = lightColorScheme(
     primary = LightPrimary,
@@ -76,27 +80,27 @@ val LightColorScheme: ColorScheme = lightColorScheme(
     onPrimaryContainer = LightOnPrimaryContainer,
     secondary = LightOnSurfaceVariant,
     onSecondary = Color.White,
-    secondaryContainer = LightSurfaceContainerHigh,
+    secondaryContainer = LightSurfaceContainerHighest,
     onSecondaryContainer = LightOnSurface,
-    tertiary = LegacyTertiary,
+    tertiary = LightPrimary,
     tertiaryContainer = LightSelectedContainer,
     onTertiaryContainer = LightOnSelectedContainer,
-    background = LightSurface,
+    background = LightBackground,
     onBackground = LightOnSurface,
     surface = LightSurface,
     onSurface = LightOnSurface,
-    surfaceVariant = LightSurfaceContainerHigh,
+    surfaceVariant = LightSurfaceContainerHighest,
     onSurfaceVariant = LightOnSurfaceVariant,
     surfaceDim = LightSurfaceContainerHighest,
     surfaceBright = LightSurface,
-    surfaceContainerLowest = Color.White,
+    surfaceContainerLowest = LightSurfaceContainerLowest,
     surfaceContainerLow = LightSurfaceContainerLow,
     surfaceContainer = LightSurfaceContainer,
     surfaceContainerHigh = LightSurfaceContainerHigh,
     surfaceContainerHighest = LightSurfaceContainerHighest,
     outline = LightOutline,
     outlineVariant = LightOutlineVariant,
-    error = LegacyError,
+    error = LightError,
     onError = Color.White,
 )
 
@@ -106,111 +110,118 @@ val DarkColorScheme: ColorScheme = darkColorScheme(
     primaryContainer = DarkPrimaryContainer,
     onPrimaryContainer = DarkOnPrimaryContainer,
     secondary = DarkOnSurfaceVariant,
-    onSecondary = Color(0xFF243425),
-    secondaryContainer = DarkSurfaceContainerHigh,
+    onSecondary = Color(0xFF0B0E13),
+    secondaryContainer = DarkSurfaceContainerHighest,
     onSecondaryContainer = DarkOnSurface,
-    tertiary = LegacyTertiary,
+    tertiary = DarkPrimary,
     tertiaryContainer = DarkSelectedContainer,
     onTertiaryContainer = DarkOnSelectedContainer,
     background = DarkSurface,
     onBackground = DarkOnSurface,
     surface = DarkSurface,
     onSurface = DarkOnSurface,
-    surfaceVariant = DarkSurfaceContainerHigh,
+    surfaceVariant = DarkSurfaceContainerHighest,
     onSurfaceVariant = DarkOnSurfaceVariant,
     surfaceDim = DarkSurface,
     surfaceBright = DarkSurfaceContainerHighest,
-    surfaceContainerLowest = Color(0xFF0C0D09),
+    surfaceContainerLowest = DarkSurfaceContainerLowest,
     surfaceContainerLow = DarkSurfaceContainerLow,
     surfaceContainer = DarkSurfaceContainer,
     surfaceContainerHigh = DarkSurfaceContainerHigh,
     surfaceContainerHighest = DarkSurfaceContainerHighest,
     outline = DarkOutline,
     outlineVariant = DarkOutlineVariant,
-    error = LegacyErrorDark,
-    onError = Color(0xFF400C0C),
+    error = DarkError,
+    onError = Color(0xFF2A0906),
 )
 
 /**
- * Torrent status accents plus a paired lighter "track" tone for progress-bar backgrounds, and the
- * error color (kept in sync with [ColorScheme.error] since the mockups don't define a status color
- * for the error state). Theme-aware: dark-mode values are brightened, not an inverted light palette.
+ * Torrent state accents plus a paired low-emphasis "track" tone for progress-bar backgrounds.
+ *
+ * The design encodes state as colour + text (never colour alone) and defines exactly five:
+ * downloading = the blue accent, seeding = green, paused = amber, error = red, completed = grey.
+ * [waiting] (queued/checking) and [idle] (unknown) borrow the two neutrals so no status is left
+ * without a bar colour.
  */
 data class StatusColors(
     val downloading: Color,
     val downloadingTrack: Color,
     val seeding: Color,
     val seedingTrack: Color,
-    val idle: Color,
-    val idleTrack: Color,
+    val paused: Color,
+    val pausedTrack: Color,
     val waiting: Color,
     val waitingTrack: Color,
+    val idle: Color,
+    val idleTrack: Color,
     val error: Color,
 )
 
 val LightStatusColors = StatusColors(
-    downloading = Color(0xFF3F68B8),
-    downloadingTrack = Color(0xFFD3DDF2),
-    seeding = Color(0xFF4D7D2A),
-    seedingTrack = Color(0xFFD3E6BE),
-    idle = Color(0xFF8A8D80),
-    idleTrack = Color(0xFFD6D9CB),
-    waiting = Color(0xFF9A7B33),
-    waitingTrack = Color(0xFFE7DDC6),
-    error = LegacyError,
+    downloading = Color(0xFF1F6FE0),
+    downloadingTrack = Color(0xFFDCE8FA),
+    seeding = Color(0xFF0F9D6E),
+    seedingTrack = Color(0xFFD3EDE4),
+    paused = Color(0xFFB27A10),
+    pausedTrack = Color(0xFFF4E7C9),
+    waiting = Color(0xFF5D6A7A),
+    waitingTrack = Color(0xFFE4E8EE),
+    idle = Color(0xFF8B96A5),
+    idleTrack = Color(0xFFE4E8EE),
+    error = LightError,
 )
 
 val DarkStatusColors = StatusColors(
-    downloading = Color(0xFFADC7FF),
-    downloadingTrack = Color(0xFF324365),
-    seeding = Color(0xFFA0CF72),
-    seedingTrack = Color(0xFF2F4A1E),
-    idle = Color(0xFFB1B5A5),
-    idleTrack = Color(0xFF3A3E33),
-    waiting = Color(0xFFF0C250),
-    waitingTrack = Color(0xFF473D1F),
-    error = LegacyErrorDark,
+    downloading = Color(0xFF4F9CF9),
+    downloadingTrack = Color(0xFF16283F),
+    seeding = Color(0xFF34D399),
+    seedingTrack = Color(0xFF10291F),
+    paused = Color(0xFFF0B429),
+    pausedTrack = Color(0xFF2E2510),
+    waiting = Color(0xFFA9B4C4),
+    waitingTrack = Color(0xFF1B222B),
+    idle = Color(0xFF8B96A5),
+    idleTrack = Color(0xFF1B222B),
+    error = DarkError,
 )
 
-/**
- * Progress/state accent for a torrent's current status. Queued/checking (not yet actively
- * transferring) read as "waiting"; paused/unknown read as "idle"; error is its own accent since
- * the mockups don't define a status color for it.
- */
+/** Progress/state accent for a torrent's current status. */
 fun StatusColors.accent(status: TorrentStatus): Color = when (status) {
     TorrentStatus.DOWNLOADING -> downloading
     TorrentStatus.SEEDING -> seeding
+    TorrentStatus.PAUSED -> paused
     TorrentStatus.QUEUED, TorrentStatus.CHECKING -> waiting
     TorrentStatus.ERROR -> error
-    TorrentStatus.PAUSED, TorrentStatus.UNKNOWN -> idle
+    TorrentStatus.UNKNOWN -> idle
 }
 
-/** The lighter progress-track tone paired with [accent]. */
+/** The low-emphasis tone paired with [accent]. */
 fun StatusColors.track(status: TorrentStatus): Color = when (status) {
     TorrentStatus.DOWNLOADING -> downloadingTrack
     TorrentStatus.SEEDING -> seedingTrack
+    TorrentStatus.PAUSED -> pausedTrack
     TorrentStatus.QUEUED, TorrentStatus.CHECKING -> waitingTrack
-    TorrentStatus.PAUSED, TorrentStatus.ERROR, TorrentStatus.UNKNOWN -> idleTrack
+    TorrentStatus.ERROR, TorrentStatus.UNKNOWN -> idleTrack
 }
 
 /**
  * One label/category hue: [dot] for the filter drawer and set-label sheet, [content] and
  * [container] for the label pill on the torrent list and details screen. Labels are free-form user
  * text, so a fixed set of hues is cycled by a stable hash of the label name (see [labelHue]) rather
- * than matched to specific category keywords; the mockups name them after example labels.
+ * than matched to specific category keywords.
  */
 data class LabelHue(val dot: Color, val content: Color, val container: Color)
 
 val LightLabelHues: List<LabelHue> = listOf(
-    LabelHue(dot = Color(0xFFC0871C), content = Color(0xFF8A5E0C), container = Color(0xFFF1E4C6)), // amber (books)
-    LabelHue(dot = Color(0xFF7A5BD0), content = Color(0xFF654BC0), container = Color(0xFFE6DDF8)), // purple (music)
-    LabelHue(dot = Color(0xFF3F68B8), content = Color(0xFF31548F), container = Color(0xFFD9E3F6)), // blue (software)
-    LabelHue(dot = Color(0xFF1F8F86), content = Color(0xFF136B63), container = Color(0xFFD0E8E3)), // teal (video)
+    LabelHue(dot = Color(0xFFB27A10), content = Color(0xFF8A5E0C), container = Color(0xFFF4E7C9)), // amber
+    LabelHue(dot = Color(0xFF6B4BC0), content = Color(0xFF5A3EAD), container = Color(0xFFE7DEF8)), // purple
+    LabelHue(dot = Color(0xFF1F6FE0), content = Color(0xFF17539F), container = Color(0xFFDCE8FA)), // blue
+    LabelHue(dot = Color(0xFF0F8A80), content = Color(0xFF0B665F), container = Color(0xFFD2E9E5)), // teal
 )
 
 val DarkLabelHues: List<LabelHue> = listOf(
-    LabelHue(dot = Color(0xFFE0A53A), content = Color(0xFFE0A53A), container = Color(0xFF3A2E12)),
-    LabelHue(dot = Color(0xFFA892E6), content = Color(0xFFC3AEF0), container = Color(0xFF2F2545)),
-    LabelHue(dot = Color(0xFF8FB0F0), content = Color(0xFFA8C2F5), container = Color(0xFF20314F)),
-    LabelHue(dot = Color(0xFF5BC4BA), content = Color(0xFF5FC9BD), container = Color(0xFF113B37)),
+    LabelHue(dot = Color(0xFFF0B429), content = Color(0xFFF0B429), container = Color(0xFF2E2510)),
+    LabelHue(dot = Color(0xFFA892E6), content = Color(0xFFC3AEF0), container = Color(0xFF2A2240)),
+    LabelHue(dot = Color(0xFF4F9CF9), content = Color(0xFFA8CBFA), container = Color(0xFF142334)),
+    LabelHue(dot = Color(0xFF34D399), content = Color(0xFF5FD3AC), container = Color(0xFF10291F)),
 )

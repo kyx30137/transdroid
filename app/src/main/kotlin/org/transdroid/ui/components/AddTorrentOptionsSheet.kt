@@ -16,6 +16,11 @@
  */
 package org.transdroid.ui.components
 
+import org.transdroid.data.DownloadPaths
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -61,10 +66,13 @@ fun AddTorrentOptionsSheet(
     // Fully expanded right away, so the action buttons at the bottom are visible without dragging
     sheetState: SheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
 ) {
-    var location by remember { mutableStateOf("") }
+    val paths = LocalDownloadPaths.current
+    var location by remember(paths.profileId) { mutableStateOf<String?>(null) }
     var startPaused by remember { mutableStateOf(false) }
+    LaunchedEffect(paths.profileId) { paths.refresh() }
 
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
+        Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).imePadding()) {
         // Matches SetLabelSheet/SetLocationSheet's .sheet-head: its own horizontal inset (22dp),
         // distinct from the options section below (16dp).
         Column(Modifier.padding(horizontal = 22.dp)) {
@@ -93,12 +101,13 @@ fun AddTorrentOptionsSheet(
         ) {
             TextButton(onClick = onDismiss) { Text(stringResource(R.string.details_cancel)) }
             Spacer(Modifier.width(8.dp))
-            Button(onClick = {
-                onAdd(startPaused, location.trim().ifBlank { null })
+            Button(enabled = location == null || DownloadPaths.isValid(location.orEmpty()), onClick = {
+                onAdd(startPaused, DownloadPaths.submissionPath(location))
                 onDismiss()
             }) {
                 Text(stringResource(R.string.add_button, serverName))
             }
+        }
         }
     }
 }
